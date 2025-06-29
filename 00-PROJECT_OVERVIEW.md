@@ -2,15 +2,17 @@
 
 ## Project Purpose
 
-This project demonstrates modern desktop application development using .NET 8 with a **privacy-first, local-only approach**. Through building a practical screenshot management system, we showcase secure, offline-capable desktop development with optional AI integrations.
+This project demonstrates modern desktop application development using .NET 8 with a **privacy-first, local-only approach**. Through building a practical screenshot management system, we showcase secure, offline-capable desktop development with Azure AI integration and real-time user interfaces.
 
 ## Primary Objectives
 
 ### Technical Demonstration
+- **System Tray Application** with global hotkey integration (Ctrl+Print Screen)
 - **Local File Storage** for secure, privacy-first data management
-- **Desktop Application** with modern .NET 8 patterns
-- **AI Integration Options** (API-based or local models)
+- **WPF Desktop Interface** with modern MVVM patterns
+- **Azure AI Vision Integration** with background processing queues
 - **Component-Based Architecture** for maintainable code
+- **Real-Time Updates** with event-driven architecture
 - **.NET 8** latest features utilization
 
 ### Development Methodology Practice
@@ -39,22 +41,23 @@ This project demonstrates modern desktop application development using .NET 8 wi
 - Inefficient team sharing processes
 
 ### Value Proposition
-- **Privacy Protection**: All screenshots stored locally, never uploaded to cloud
-- **Offline Operation**: Works completely without internet connection
-- **AI Enhancement**: Optional AI analysis while keeping data local
-- **Fast Performance**: Direct file system access for instant operations
-- **Zero Storage Costs**: Use your own disk space, no cloud fees
+- **Privacy Protection**: All screenshots stored locally, only analyzed when user captures
+- **System Integration**: Global hotkey (Ctrl+Print Screen) for instant capture anywhere
+- **Real-Time AI Analysis**: Background Azure AI Vision processing with live gallery updates
+- **Rich Desktop Experience**: Modern WPF interface with search, management, and statistics
+- **Fast Performance**: Direct file system access with optimized thumbnails and metadata
+- **Zero Storage Costs**: Use your own disk space, pay only for AI analysis API calls
 
 ## Technical Constraints
 
 ### Required Components
 - .NET 8 or higher
-- Local file system access
-- Windows, macOS, or Linux desktop
+- Windows desktop (for system tray and global hotkey support)
+- Local file system access for screenshot storage
 
 ### Optional Components
-- API keys for AI services (OpenAI, Azure AI, etc.)
-- Local AI models (Ollama, etc.) for offline AI features
+- Azure AI Vision API key for content analysis
+- Internet connection for AI processing (analysis can be skipped if offline)
 
 ## Success Criteria
 
@@ -62,13 +65,17 @@ This project demonstrates modern desktop application development using .NET 8 wi
 - [x] Privacy-first local storage implementation
 - [x] Modern .NET 8 component architecture
 - [x] Incremental development methodology demonstration
-- [ ] AI feature integration proof-of-concept
+- [x] Azure AI Vision integration with background processing
+- [x] Real-time event-driven updates
+- [ ] Complete system tray application integration
 
 ### As Practical Application
-- [ ] Intuitive desktop UI/UX
-- [x] Reliable local file management
-- [ ] Efficient search capabilities
-- [ ] Cross-platform compatibility
+- [x] Global hotkey integration (Ctrl+Print Screen)
+- [x] Interactive area selection for screenshots
+- [x] Reliable local file management with optimization
+- [x] Rich WPF gallery interface with search capabilities
+- [x] Background AI analysis with real-time results
+- [ ] System tray application deployment
 
 ## Project Constraints
 
