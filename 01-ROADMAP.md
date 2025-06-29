@@ -6,134 +6,136 @@ This roadmap follows a **Crawl/Walk/Run** approach, ensuring each stage delivers
 
 ## Stage 1: CRAWL 🐛
 **Duration**: Week 1  
-**Goal**: Basic file upload and storage functionality  
-**Demo Focus**: Azure integration and modern deployment pipeline
+**Goal**: Basic clipboard capture and local storage functionality  
+**Demo Focus**: Privacy-first local storage with modern .NET 8 architecture
 
 ### Core Features
-- **File Upload Interface**
-  - Drag & drop file upload
-  - Multi-file selection support
-  - Image file type validation
-  - Progress indicators
+- **Clipboard Integration**
+  - Automatic clipboard image detection
+  - Paste-to-save functionality
+  - Multiple image format support
+  - Real-time clipboard monitoring
 
-- **Azure Blob Storage Integration**
-  - Secure file upload to Azure Blob Storage
+- **Local File Storage**
+  - Secure local file storage in user documents
   - Automatic file naming with collision avoidance
-  - Basic metadata storage (upload date, file size, original name)
+  - Image optimization and compression
+  - Thumbnail generation for fast gallery display
 
 - **Basic Gallery View**
-  - Grid layout of uploaded screenshots
-  - Thumbnail generation and display
-  - Basic file information display
-  - Simple pagination
+  - Grid layout of local screenshots
+  - Thumbnail-based browsing
+  - File information display
+  - Local file management
 
-- **CI/CD Pipeline**
-  - GitHub Actions workflow
-  - Automated deployment to Azure App Service
-  - Environment configuration management
+- **Desktop Application**
+  - Cross-platform .NET 8 desktop app
+  - System tray integration
+  - Keyboard shortcuts for quick capture
+  - Privacy-focused: no network dependencies
 
 ### Technical Implementation
-- ASP.NET Core MVC (.NET 8)
-- Azure Blob Storage SDK
-- Bootstrap 5 for responsive UI
-- Clean component architecture
+- .NET 8 Desktop Application
+- Local file system storage
+- SixLabors.ImageSharp for image processing
+- Component-based architecture
 
 ### Success Criteria
-- [ ] Successful file upload to Azure Blob Storage
-- [ ] Responsive gallery interface
-- [ ] Automated deployment working
-- [ ] Basic error handling implemented
-- [x] Component documentation complete (Domain Component)
+- [x] Reliable clipboard image capture
+- [x] Local file storage working
+- [x] Image optimization implemented
+- [x] Component architecture complete
+- [x] Component documentation complete (Domain & Storage)
 
 ---
 
 ## Stage 2: WALK 🚶‍♂️
 **Duration**: Week 2  
-**Goal**: AI-powered image analysis and basic search  
-**Demo Focus**: Azure AI Foundry integration and intelligent features
+**Goal**: AI-powered image analysis with privacy protection  
+**Demo Focus**: Local-first AI integration with optional cloud enhancement
 
 ### Core Features
-- **AI Image Analysis**
+- **Privacy-First AI Analysis**
+  - Local AI model integration (Ollama, etc.)
+  - Optional API-based AI services (OpenAI, Azure AI)
   - OCR text extraction from screenshots
-  - Basic object/UI element detection
-  - Auto-generated image descriptions
   - Application type classification (browser, IDE, etc.)
 
-- **Enhanced Metadata**
-  - Store extracted text in searchable format
-  - AI-generated tags and categories
+- **Enhanced Local Metadata**
+  - Store extracted text locally in searchable format
+  - AI-generated tags and categories (cached locally)
   - Confidence scores for AI predictions
-  - Structured metadata schema
+  - Local SQLite database for metadata
 
-- **Search and Filter**
+- **Advanced Search and Filter**
   - Full-text search through extracted text
-  - Filter by date ranges
+  - Filter by date ranges and file types
   - Filter by AI-detected categories
-  - Tag-based filtering
+  - Tag-based filtering and organization
 
-- **Improved UI/UX**
-  - Search interface with filters
+- **Enhanced Desktop UI**
+  - Search interface with advanced filters
   - Enhanced gallery view with AI insights
   - Image detail view with analysis results
-  - Loading states for AI processing
+  - Real-time search and filtering
 
 ### Technical Implementation
-- Azure AI Foundry Computer Vision API
-- Enhanced data models for AI metadata
-- Search functionality implementation
-- Async processing for AI operations
+- Local AI model integration (optional)
+- API-based AI services (with user consent)
+- SQLite for local metadata storage
+- Enhanced desktop UI components
 
 ### Success Criteria
-- [ ] OCR text extraction working reliably
-- [ ] AI tags and categories generated
-- [ ] Search functionality operational
-- [ ] Performance optimized for AI calls
-- [ ] User feedback integration
+- [ ] Local AI model integration working
+- [ ] OCR text extraction reliable
+- [ ] Local search functionality operational
+- [ ] Performance optimized for local operations
+- [ ] Privacy controls implemented
 
 ---
 
 ## Stage 3: RUN 🏃‍♂️
 **Duration**: Week 3  
-**Goal**: Advanced features and production readiness  
-**Demo Focus**: Complete solution with advanced AI capabilities
+**Goal**: Advanced local features and productivity enhancement  
+**Demo Focus**: Complete desktop solution with advanced local AI capabilities
 
 ### Core Features
-- **Advanced AI Analysis**
-  - Sentiment analysis of UI content
-  - Similar image detection
+- **Advanced Local AI Analysis**
+  - Local sentiment analysis of UI content
+  - Similar image detection and clustering
   - Automatic project/context grouping
-  - Custom AI model fine-tuning
+  - Custom local AI model training
 
-- **Smart Organization**
+- **Smart Local Organization**
   - AI-powered automatic folders/projects
   - Smart recommendations for categorization
   - Duplicate detection and management
   - Version tracking for similar screenshots
 
-- **Collaboration Features**
-  - Shareable links with access controls
-  - Team workspaces
-  - Annotation and commenting system
-  - Export capabilities (PDF reports, etc.)
+- **Productivity Features**
+  - Local export capabilities (PDF reports, etc.)
+  - Advanced annotation and markup tools
+  - Screenshot automation and scheduling
+  - Integration with productivity tools
 
-- **Advanced Search & Analytics**
-  - Semantic search capabilities
-  - Usage analytics and insights
-  - Advanced filtering options
+- **Advanced Local Search & Analytics**
+  - Semantic search capabilities (local models)
+  - Usage analytics and insights (local only)
+  - Advanced filtering and sorting options
   - Search result ranking and relevance
 
 ### Technical Implementation
-- Custom AI model integration
-- Real-time collaboration features
-- Advanced database queries and indexing
+- Advanced local AI model integration
+- Local analytics and insights engine
+- Advanced local database queries and indexing
 - Performance monitoring and optimization
 
 ### Success Criteria
-- [ ] Advanced AI features operational
-- [ ] Collaboration features working
-- [ ] Performance meets production standards
-- [ ] Security and privacy controls implemented
-- [ ] Full documentation complete
+- [ ] Advanced local AI features operational
+- [ ] Productivity features working seamlessly
+- [ ] Performance meets desktop application standards
+- [ ] Complete privacy and security controls
+- [ ] Full documentation and user guides complete
 
 ---
 
@@ -141,37 +143,37 @@ This roadmap follows a **Crawl/Walk/Run** approach, ensuring each stage delivers
 
 ### Architecture Evolution
 ```
-Crawl:  Simple MVC → Blob Storage
-Walk:   Add AI Services → Enhanced Models
-Run:    Microservices → Advanced Features
+Crawl:  Desktop App → Local Storage
+Walk:   Add Local AI → Enhanced Local Models
+Run:    Advanced Features → Local Analytics
 ```
 
 ### Database Strategy
-- **Crawl**: In-memory/simple file metadata
-- **Walk**: Azure SQL Database for AI metadata
-- **Run**: Advanced indexing and search optimization
+- **Crawl**: Local file system metadata
+- **Walk**: SQLite database for AI metadata and search
+- **Run**: Advanced local indexing and full-text search
 
-### Security Progression
-- **Crawl**: Basic Azure authentication
-- **Walk**: Enhanced access controls
-- **Run**: Enterprise-grade security features
+### Privacy Progression
+- **Crawl**: Complete local storage, no network
+- **Walk**: Optional AI services with user consent
+- **Run**: Advanced privacy controls and data encryption
 
 ### Performance Targets
-- **Crawl**: < 5s upload time for 10MB files
-- **Walk**: < 10s AI processing time
-- **Run**: < 2s search response time
+- **Crawl**: < 1s local file save for 10MB images
+- **Walk**: < 5s local AI processing time
+- **Run**: < 500ms search response time (local)
 
 ## Risk Mitigation
 
 ### Technical Risks
-- **AI API Limits**: Implement rate limiting and fallback strategies
-- **Storage Costs**: Monitor usage and implement optimization
-- **Performance**: Load testing at each stage
+- **Local AI Performance**: Optimize for different hardware capabilities
+- **Disk Storage**: Monitor usage and implement cleanup strategies
+- **Cross-Platform Issues**: Test thoroughly on Windows, macOS, Linux
 
 ### Demo Risks
 - **Live Coding**: Always maintain working previous stage
-- **Network Issues**: Prepare offline demos as backup
-- **Azure Limits**: Monitor quotas and have backup plans
+- **Hardware Differences**: Test on various desktop configurations
+- **Local Dependencies**: Ensure all components work offline
 
 ## Success Metrics
 

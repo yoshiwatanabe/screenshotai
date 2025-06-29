@@ -8,18 +8,18 @@ This document provides detailed specifications for each component in the Screens
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Components Overview                      │
+│             Desktop Components Overview                     │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐      │
-│  │   Domain    │    │   Storage   │    │ Clipboard   │      │
-│  │  Entities   │    │  Service    │    │ Processing  │      │
+│  │   Domain    │    │    Local    │    │ Clipboard   │      │
+│  │  Entities   │    │   Storage   │    │ Processing  │      │
 │  │             │    │             │    │             │      │
 │  └─────────────┘    └─────────────┘    └─────────────┘      │
 │                                                             │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐      │
-│  │   Web UI    │    │  Realtime   │    │ AI Analysis │      │
-│  │ Controller  │    │  Updates    │    │ (Walk+)     │      │
+│  │ Desktop UI  │    │   Local AI  │    │   Search    │      │
+│  │ (WPF/MAUI)  │    │ (Optional)  │    │ & Metadata  │      │
 │  │             │    │             │    │             │      │
 │  └─────────────┘    └─────────────┘    └─────────────┘      │
 └─────────────────────────────────────────────────────────────┘
@@ -137,10 +137,10 @@ screenshot.MarkAsProcessed();
 
 ---
 
-## C2: Storage Component
+## C2: Local Storage Component ✅ COMPLETE
 
 ### Responsibility
-Handle all Azure Blob Storage operations with optimized clipboard image processing.
+Handle all local file system storage operations with optimized clipboard image processing and privacy protection.
 
 ### Location
 ```
@@ -152,15 +152,14 @@ Components/Storage/
 │   ├── Configuration/
 │   └── Extensions/
 ├── tests/
-│   ├── UnitTests/
-│   └── IntegrationTests/
+│   └── LocalStorageTests/
 └── docs/
     └── storage-design.md
 ```
 
 ### Public Interface
 ```csharp
-public interface IBlobStorageService
+public interface ILocalStorageService
 {
     // Primary clipboard operations
     Task<UploadResult> UploadFromClipboardAsync(
@@ -173,10 +172,11 @@ public interface IBlobStorageService
         byte[] originalImage,
         ImageOptimizationSettings settings);
     
-    // Standard operations
-    Task<Stream> GetImageStreamAsync(string blobName, CancellationToken cancellationToken = default);
-    Task<Uri> GetThumbnailUriAsync(string blobName);
-    Task<bool> DeleteImageAsync(string blobName, CancellationToken cancellationToken = default);
+    // Local file operations
+    Task<Stream> GetImageStreamAsync(string fileName, CancellationToken cancellationToken = default);
+    Task<string> GetThumbnailPathAsync(string fileName);
+    Task<string> GetImagePathAsync(string fileName);
+    Task<bool> DeleteImageAsync(string fileName, CancellationToken cancellationToken = default);
     
     // Health check
     Task<bool> IsHealthyAsync(CancellationToken cancellationToken = default);
@@ -206,23 +206,29 @@ public class OptimizedImageResult
 ### Dependencies
 ```csharp
 // External dependencies
-- Azure.Storage.Blobs
 - SixLabors.ImageSharp (for image processing)
 - Microsoft.Extensions.Logging
 - Microsoft.Extensions.Options
+- Microsoft.Extensions.Configuration
 
 // Internal dependencies
 - Domain component (for BlobReference value object)
+
+// Privacy Benefits
+- No cloud dependencies
+- No network requirements
+- Complete local operation
 ```
 
 ### Configuration
 ```csharp
 public class StorageOptions
 {
-    public string ConnectionString { get; set; }
-    public string ContainerName { get; set; } = "screenshots";
-    public string ThumbnailContainer { get; set; } = "thumbnails";
+    public string ScreenshotsDirectory { get; set; } = "~/Documents/Screenshots";
+    public string ThumbnailsDirectory { get; set; } = "~/Documents/Screenshots/Thumbnails";
     public ImageOptimizationSettings DefaultOptimization { get; set; }
+    public bool CreateDirectoriesIfNotExist { get; set; } = true;
+    public long MaxFileSizeBytes { get; set; } = 50 * 1024 * 1024; // 50MB
 }
 
 public class ImageOptimizationSettings
@@ -240,15 +246,15 @@ public class ImageOptimizationSettings
 public class StorageException : Exception
 {
     public StorageErrorCode ErrorCode { get; }
-    public string BlobName { get; }
+    public string FileName { get; }
 }
 
 public enum StorageErrorCode
 {
-    ConnectionFailure,
-    BlobNotFound,
+    DirectoryAccessFailure,
+    FileNotFound,
     InsufficientPermissions,
-    QuotaExceeded,
+    DiskSpaceExceeded,
     InvalidImageFormat
 }
 ```
@@ -358,232 +364,225 @@ public class ClipboardImageValidator
 
 ---
 
-## C4: Web UI Component
+## C4: Desktop UI Component
 
 ### Responsibility
-Handle web interface for clipboard paste operations and gallery display.
+Handle desktop interface for clipboard capture, gallery display, and screenshot management.
 
 ### Location
 ```
-Components/WebUI/
+Components/DesktopUI/
 ├── README.md
 ├── src/
-│   ├── Controllers/
 │   ├── Views/
 │   ├── ViewModels/
-│   ├── JavaScript/
+│   ├── Controls/
+│   ├── Services/
 │   └── Styles/
 ├── tests/
-│   ├── ControllerTests/
-│   └── JavaScriptTests/
+│   └── UITests/
 └── docs/
     └── ui-specifications.md
 ```
 
-### Controller Interface
+### Desktop Interface
 ```csharp
-[Route("api/[controller]")]
-public class ClipboardController : ControllerBase
+public class MainWindowViewModel : INotifyPropertyChanged
 {
-    [HttpPost("paste")]
-    public async Task<ActionResult<PasteResponse>> HandlePasteAsync(
-        [FromBody] PasteRequest request,
-        CancellationToken cancellationToken)
-    {
-        // Coordinate clipboard processing and storage
-    }
+    // Clipboard monitoring
+    public async Task StartClipboardMonitoringAsync();
+    public async Task HandleClipboardImageAsync(byte[] imageData);
     
-    [HttpGet("status/{id}")]
-    public async Task<ActionResult<ProcessingStatus>> GetProcessingStatusAsync(
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        // Return current processing status
-    }
+    // Gallery management
+    public ObservableCollection<ScreenshotViewModel> Screenshots { get; }
+    public async Task LoadScreenshotsAsync();
+    public async Task DeleteScreenshotAsync(Guid id);
+    
+    // Search and filter
+    public string SearchText { get; set; }
+    public async Task SearchScreenshotsAsync(string query);
 }
 
-public class PasteRequest
+public class ScreenshotViewModel
 {
-    public string ImageData { get; set; } // Base64 encoded
-    public string? SuggestedName { get; set; }
-    public DateTime ClientTimestamp { get; set; }
-}
-
-public class PasteResponse
-{
-    public bool Success { get; set; }
-    public Guid ScreenshotId { get; set; }
-    public string GeneratedFileName { get; set; }
-    public string ThumbnailUrl { get; set; }
-    public ProcessingStatus Status { get; set; }
+    public Guid Id { get; set; }
+    public string DisplayName { get; set; }
+    public string ThumbnailPath { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public ScreenshotSource Source { get; set; }
+    public ScreenshotStatus Status { get; set; }
+    
+    // Commands
+    public ICommand OpenCommand { get; }
+    public ICommand DeleteCommand { get; }
+    public ICommand RenameCommand { get; }
 }
 ```
 
-### JavaScript Interface
-```javascript
-// Main clipboard manager class
-class ClipboardManager {
-    constructor(options = {}) {
-        this.apiEndpoint = options.apiEndpoint || '/api/clipboard';
-        this.maxFileSize = options.maxFileSize || 50 * 1024 * 1024;
-        this.allowedTypes = options.allowedTypes || ['image/png', 'image/jpeg'];
+### Desktop Controls
+```csharp
+// Clipboard monitoring service
+public class ClipboardMonitorService
+{
+    public event EventHandler<ClipboardImageEventArgs> ImageCopied;
+    
+    public void StartMonitoring()
+    {
+        // Start monitoring clipboard for image changes
     }
     
-    // Core functionality
-    async handlePasteEvent(event) {
-        const clipboardData = await this.extractImageFromClipboard(event);
-        if (clipboardData) {
-            return await this.uploadImage(clipboardData);
-        }
+    public void StopMonitoring()
+    {
+        // Stop clipboard monitoring
     }
-    
-    async extractImageFromClipboard(event) {
-        // Extract image data from clipboard event
-    }
-    
-    async uploadImage(imageData) {
-        // Send to backend API
-    }
-    
-    // Event handlers
-    setupGlobalPasteHandler() {
-        document.addEventListener('paste', this.handlePasteEvent.bind(this));
-    }
-    
-    setupPasteZone(element) {
-        element.addEventListener('paste', this.handlePasteEvent.bind(this));
-        element.addEventListener('click', () => element.focus());
-    }
+}
+
+// System tray integration
+public class TrayIconService
+{
+    public void ShowNotification(string title, string message);
+    public void UpdateIcon(string iconPath);
+    public void ShowContextMenu();
+}
+
+// Global hotkey service
+public class HotkeyService
+{
+    public void RegisterHotkey(Keys key, ModifierKeys modifiers, Action callback);
+    public void UnregisterHotkey(Keys key, ModifierKeys modifiers);
 }
 ```
 
 ### Dependencies
 ```csharp
-// Backend dependencies
+// Component dependencies
 - ClipboardProcessing component
-- Storage component
+- Local Storage component
 - Domain component
-- Microsoft.AspNetCore.Mvc
-- Microsoft.AspNetCore.SignalR
 
-// Frontend dependencies
-- Bootstrap 5.3
-- SignalR JavaScript client
-- Modern browser with Clipboard API support
+// Desktop framework dependencies
+- WPF or .NET MAUI
+- System.Windows.Forms (for system tray)
+- Microsoft.Win32 (for Windows registry/system integration)
+
+// Cross-platform considerations
+- Avalonia UI (alternative to WPF for cross-platform)
+- Platform-specific clipboard APIs
 ```
 
 ---
 
-## C5: Realtime Updates Component
+## C5: Local Search & Metadata Component
 
 ### Responsibility
-Provide real-time notifications for upload progress and processing status.
+Provide fast local search capabilities and metadata management for screenshots.
 
 ### Location
 ```
-Components/RealtimeUpdates/
+Components/SearchMetadata/
 ├── README.md
 ├── src/
-│   ├── Hubs/
 │   ├── Services/
-│   └── Models/
+│   ├── Models/
+│   ├── Database/
+│   └── Indexing/
 ├── tests/
-│   └── RealtimeTests/
+│   └── SearchTests/
 └── docs/
-    └── signalr-design.md
+    └── search-design.md
 ```
 
 ### Public Interface
 ```csharp
-public interface IRealtimeNotificationService
+public interface ISearchService
 {
-    // Connection management
-    Task AddToUserGroupAsync(string connectionId, string userId);
-    Task RemoveFromUserGroupAsync(string connectionId, string userId);
+    // Search operations
+    Task<SearchResult> SearchAsync(SearchQuery query);
+    Task<List<Screenshot>> SearchByTextAsync(string text);
+    Task<List<Screenshot>> SearchByTagsAsync(IEnumerable<string> tags);
+    Task<List<Screenshot>> SearchByDateRangeAsync(DateTime start, DateTime end);
     
-    // Notifications
-    Task NotifyUploadStartedAsync(string userId, Guid screenshotId, string fileName);
-    Task NotifyUploadProgressAsync(string userId, Guid screenshotId, int progressPercent);
-    Task NotifyUploadCompletedAsync(string userId, Guid screenshotId, string thumbnailUrl);
-    Task NotifyUploadFailedAsync(string userId, Guid screenshotId, string errorMessage);
+    // Indexing operations
+    Task IndexScreenshotAsync(Screenshot screenshot);
+    Task UpdateScreenshotIndexAsync(Screenshot screenshot);
+    Task RemoveFromIndexAsync(Guid screenshotId);
     
-    // Processing notifications (Walk+)
-    Task NotifyProcessingStartedAsync(string userId, Guid screenshotId);
-    Task NotifyProcessingCompletedAsync(string userId, Guid screenshotId, ProcessingResult result);
+    // Metadata management
+    Task<ScreenshotMetadata> GetMetadataAsync(Guid screenshotId);
+    Task SaveMetadataAsync(ScreenshotMetadata metadata);
 }
 
-// SignalR Hub
-public class ScreenshotHub : Hub
+// Search models
+public class SearchQuery
 {
-    public async Task JoinUserGroup(string userId)
-    {
-        await Groups.AddToGroupAsync(Context.ConnectionId, GetUserGroupName(userId));
-    }
-    
-    public async Task LeaveUserGroup(string userId)
-    {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, GetUserGroupName(userId));
-    }
-    
-    private static string GetUserGroupName(string userId) => $"user_{userId}";
+    public string Text { get; set; }
+    public IEnumerable<string> Tags { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public ScreenshotSource? Source { get; set; }
+    public int Skip { get; set; }
+    public int Take { get; set; } = 50;
+}
+
+public class SearchResult
+{
+    public List<Screenshot> Screenshots { get; set; }
+    public int TotalCount { get; set; }
+    public TimeSpan SearchTime { get; set; }
 }
 ```
 
-### JavaScript Client Interface
-```javascript
-class RealtimeClient {
-    constructor(hubUrl = '/screenshothub') {
-        this.connection = new signalR.HubConnectionBuilder()
-            .withUrl(hubUrl)
-            .withAutomaticReconnect()
-            .build();
-        
-        this.setupEventHandlers();
-    }
-    
-    async start(userId) {
-        await this.connection.start();
-        await this.connection.invoke('JoinUserGroup', userId);
-    }
-    
-    setupEventHandlers() {
-        this.connection.on('UploadStarted', this.handleUploadStarted.bind(this));
-        this.connection.on('UploadProgress', this.handleUploadProgress.bind(this));
-        this.connection.on('UploadCompleted', this.handleUploadCompleted.bind(this));
-        this.connection.on('UploadFailed', this.handleUploadFailed.bind(this));
-    }
-    
-    // Event handler methods
-    handleUploadStarted(screenshotId, fileName) {
-        // Update UI to show upload started
-    }
-    
-    handleUploadProgress(screenshotId, progressPercent) {
-        // Update progress bar
-    }
-    
-    handleUploadCompleted(screenshotId, thumbnailUrl) {
-        // Add to gallery, show success message
-    }
-}
+### Local Database Schema
+```sql
+-- SQLite database for local metadata storage
+CREATE TABLE Screenshots (
+    Id TEXT PRIMARY KEY,
+    DisplayName TEXT NOT NULL,
+    FileName TEXT NOT NULL,
+    CreatedAt DATETIME NOT NULL,
+    Source INTEGER NOT NULL,
+    Status INTEGER NOT NULL,
+    ExtractedText TEXT,
+    Tags TEXT, -- JSON array
+    FailureReason TEXT
+);
+
+CREATE TABLE ScreenshotTags (
+    ScreenshotId TEXT NOT NULL,
+    Tag TEXT NOT NULL,
+    Confidence REAL,
+    PRIMARY KEY (ScreenshotId, Tag),
+    FOREIGN KEY (ScreenshotId) REFERENCES Screenshots(Id)
+);
+
+-- Full-text search index
+CREATE VIRTUAL TABLE ScreenshotSearch USING fts5(
+    Id, DisplayName, ExtractedText, Tags,
+    content='Screenshots'
+);
 ```
 
 ### Dependencies
 ```csharp
-// Backend dependencies
-- Microsoft.AspNetCore.SignalR
+// Database dependencies
+- Microsoft.Data.Sqlite
+- Microsoft.EntityFrameworkCore.Sqlite
+
+// Search dependencies
+- SQLite FTS5 extension
 - Microsoft.Extensions.Logging
 
-// Frontend dependencies
-- @microsoft/signalr (JavaScript client)
+// Component dependencies
+- Domain component
+- Local Storage component
 ```
 
 ---
 
-## C6: AI Analysis Component (Walk+ Stage)
+## C6: Local AI Analysis Component (Walk+ Stage)
 
 ### Responsibility
-Integrate with Azure AI Foundry for OCR and image analysis.
+Provide privacy-first AI analysis with local models and optional cloud services.
 
 ### Location
 ```
@@ -605,23 +604,32 @@ Components/AIAnalysis/
 ```csharp
 public interface IAIAnalysisService
 {
-    // Text extraction
-    Task<TextExtractionResult> ExtractTextAsync(
+    // Local AI analysis
+    Task<TextExtractionResult> ExtractTextLocallyAsync(
         Stream imageStream,
+        CancellationToken cancellationToken = default);
+    
+    // Optional cloud analysis (with user consent)
+    Task<TextExtractionResult> ExtractTextCloudAsync(
+        Stream imageStream,
+        AIProvider provider,
         CancellationToken cancellationToken = default);
     
     // Content analysis
     Task<ContentAnalysisResult> AnalyzeContentAsync(
         Stream imageStream,
+        bool useLocalModel = true,
         CancellationToken cancellationToken = default);
     
     // Tag generation
     Task<List<string>> GenerateTagsAsync(
         Stream imageStream,
+        bool useLocalModel = true,
         CancellationToken cancellationToken = default);
     
-    // Health check
-    Task<bool> IsAvailableAsync(CancellationToken cancellationToken = default);
+    // Model management
+    Task<bool> IsLocalModelAvailableAsync();
+    Task DownloadLocalModelAsync(IProgress<double> progress);
 }
 
 public class TextExtractionResult
@@ -638,33 +646,52 @@ public class ContentAnalysisResult
     public List<string> DetectedUIElements { get; set; }
     public string Description { get; set; }
     public double AnalysisConfidence { get; set; }
+    public bool ProcessedLocally { get; set; }
+    public AIProvider? UsedProvider { get; set; }
+}
+
+public enum AIProvider
+{
+    Local,
+    OpenAI,
+    AzureAI,
+    Ollama
 }
 ```
 
 ### Dependencies
 ```csharp
-// External dependencies
-- Azure.AI.FormRecognizer
-- Azure.AI.Vision.ImageAnalysis
+// Local AI dependencies
+- ML.NET or similar for local models
+- Tesseract OCR for local text extraction
 - Microsoft.Extensions.Logging
 - Microsoft.Extensions.Options
 
+// Optional cloud dependencies (user configurable)
+- OpenAI API client
+- Azure.AI.Vision.ImageAnalysis
+- HTTP clients for various AI services
+
 // Internal dependencies
 - Domain component
-- Storage component (for image retrieval)
+- Local Storage component
 ```
 
 ### Configuration
 ```csharp
 public class AIAnalysisOptions
 {
-    public string Endpoint { get; set; }
-    public string ApiKey { get; set; }
-    public string Region { get; set; } = "eastus";
+    public bool PreferLocalModels { get; set; } = true;
+    public string LocalModelPath { get; set; } = "./Models";
+    public bool AllowCloudServices { get; set; } = false;
+    
+    // Cloud service configuration (optional)
+    public string? OpenAIApiKey { get; set; }
+    public string? AzureEndpoint { get; set; }
+    public string? AzureApiKey { get; set; }
+    
     public int TimeoutSeconds { get; set; } = 30;
     public int MaxRetryAttempts { get; set; } = 3;
-    public bool EnableBatchProcessing { get; set; } = true;
-    public int BatchSize { get; set; } = 5;
 }
 ```
 
@@ -682,21 +709,25 @@ public static class ServiceCollectionExtensions
     {
         // Domain (no registration needed - pure entities)
         
-        // Storage
-        services.Configure<StorageOptions>(configuration.GetSection("Storage"));
-        services.AddScoped<IBlobStorageService, AzureBlobStorageService>();
+        // Local Storage
+        services.AddLocalStorageServices(configuration);
         
         // Clipboard Processing
         services.Configure<ClipboardProcessingOptions>(configuration.GetSection("ClipboardProcessing"));
         services.AddScoped<IClipboardProcessingService, ClipboardProcessingService>();
         
-        // Realtime Updates
-        services.AddSignalR();
-        services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
+        // Local Search & Metadata
+        services.Configure<SearchOptions>(configuration.GetSection("Search"));
+        services.AddScoped<ISearchService, LocalSearchService>();
         
-        // AI Analysis (Walk+)
+        // Desktop UI Services
+        services.AddSingleton<ClipboardMonitorService>();
+        services.AddSingleton<TrayIconService>();
+        services.AddSingleton<HotkeyService>();
+        
+        // AI Analysis (Walk+ - optional)
         services.Configure<AIAnalysisOptions>(configuration.GetSection("AIAnalysis"));
-        services.AddScoped<IAIAnalysisService, AIAnalysisService>();
+        services.AddScoped<IAIAnalysisService, LocalAIAnalysisService>();
         
         return services;
     }
@@ -709,11 +740,11 @@ public static class ServiceCollectionExtensions
 public class ComponentIntegrationTests
 {
     [Fact]
-    public async Task ClipboardToStorage_FullPipeline_WorksCorrectly()
+    public async Task ClipboardToLocalStorage_FullPipeline_WorksCorrectly()
     {
-        // Test complete flow from clipboard processing to storage
+        // Test complete flow from clipboard processing to local storage
         var clipboardService = _serviceProvider.GetService<IClipboardProcessingService>();
-        var storageService = _serviceProvider.GetService<IBlobStorageService>();
+        var storageService = _serviceProvider.GetService<ILocalStorageService>();
         
         // Execute full pipeline
         var processingResult = await clipboardService.ProcessClipboardDataAsync(testImageData, options);
@@ -721,19 +752,37 @@ public class ComponentIntegrationTests
         
         // Verify end-to-end functionality
         Assert.True(uploadResult.Success);
+        Assert.True(File.Exists(await storageService.GetImagePathAsync(uploadResult.BlobName)));
+    }
+    
+    [Fact]
+    public async Task LocalSearch_IndexAndSearch_WorksCorrectly()
+    {
+        // Test search functionality with local database
+        var searchService = _serviceProvider.GetService<ISearchService>();
+        var screenshot = CreateTestScreenshot();
+        
+        // Index screenshot
+        await searchService.IndexScreenshotAsync(screenshot);
+        
+        // Search for it
+        var results = await searchService.SearchByTextAsync("test screenshot");
+        
+        // Verify search works
+        Assert.Contains(screenshot.Id, results.Select(r => r.Id));
     }
 }
 ```
 
 ### Component Development Workflow
 
-1. **Develop Domain Component** (No dependencies)
+1. **Develop Domain Component** ✅ COMPLETE (No dependencies)
    - Define entities and business rules
    - Create comprehensive unit tests
    - Generate component README
 
-2. **Develop Storage Component** (Depends on Domain)
-   - Implement Azure Blob Storage integration
+2. **Develop Local Storage Component** ✅ COMPLETE (Depends on Domain)
+   - Implement local file system storage
    - Create unit and integration tests
    - Generate component README
 
@@ -742,25 +791,43 @@ public class ComponentIntegrationTests
    - Create unit tests with mock images
    - Generate component README
 
-4. **Develop Web UI Component** (Depends on Clipboard + Storage)
-   - Implement controllers and views
-   - Create JavaScript clipboard handling
-   - Test with browser automation tools
+4. **Develop Desktop UI Component** (Depends on Clipboard + Storage)
+   - Implement WPF/MAUI views and view models
+   - Create desktop clipboard handling
+   - Test with UI automation tools
    - Generate component README
 
-5. **Develop Realtime Updates** (Depends on Web UI)
-   - Implement SignalR hub and notifications
-   - Test real-time communication
+5. **Develop Local Search & Metadata** (Depends on Domain + Storage)
+   - Implement SQLite database and search
+   - Test full-text search functionality
    - Generate component README
 
-6. **Develop AI Analysis** (Walk+ stage - Depends on Storage)
-   - Implement Azure AI integration
+6. **Develop Local AI Analysis** (Walk+ stage - Depends on Storage)
+   - Implement local AI model integration
    - Create comprehensive testing with sample images
    - Generate component README
 
 ---
 
-**Last Updated**: June 17, 2025  
-**Version**: 1.0  
-**Component Architecture**: Individual component specifications  
+**Last Updated**: June 29, 2025  
+**Version**: 2.0  
+**Component Architecture**: Privacy-first local desktop application  
 **Related Documents**: 04-INTEGRATION_TECHNICAL_DESIGN.md for system integration
+
+## Architecture Changes Summary
+
+### Version 2.0 Changes (Privacy-First Local Storage)
+- **Storage**: Changed from Azure Blob Storage to local file system
+- **UI**: Changed from Web UI to Desktop Application (WPF/MAUI)
+- **Search**: Changed from cloud-based to local SQLite with FTS5
+- **AI**: Changed from cloud-only to privacy-first local models with optional cloud
+- **Realtime**: Replaced SignalR with local desktop notifications
+- **Privacy**: Complete local operation with no mandatory network dependencies
+
+### Benefits of Local-First Architecture
+- ✅ **Privacy Protection**: Screenshots never leave user's machine
+- ✅ **Offline Operation**: Works completely without internet
+- ✅ **Performance**: Direct file access, no network latency
+- ✅ **Cost**: No cloud storage or processing fees
+- ✅ **Control**: User owns and controls all data
+- ✅ **Security**: No cloud attack surface

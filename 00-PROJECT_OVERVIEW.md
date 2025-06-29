@@ -2,15 +2,15 @@
 
 ## Project Purpose
 
-This project aims to demonstrate modern web application development using Azure technology stack and .NET 8. Through building a practical screenshot management system, we will showcase the following technical components.
+This project demonstrates modern desktop application development using .NET 8 with a **privacy-first, local-only approach**. Through building a practical screenshot management system, we showcase secure, offline-capable desktop development with optional AI integrations.
 
 ## Primary Objectives
 
 ### Technical Demonstration
-- **Azure App Service** for web application hosting
-- **Azure Blob Storage** for file management
-- **Azure AI Foundry** for image analysis (later stages)
-- **GitHub Actions** for CI/CD pipeline
+- **Local File Storage** for secure, privacy-first data management
+- **Desktop Application** with modern .NET 8 patterns
+- **AI Integration Options** (API-based or local models)
+- **Component-Based Architecture** for maintainable code
 - **.NET 8** latest features utilization
 
 ### Development Methodology Practice
@@ -39,35 +39,36 @@ This project aims to demonstrate modern web application development using Azure 
 - Inefficient team sharing processes
 
 ### Value Proposition
-- **Automated Organization**: AI-powered content analysis and auto-tagging
-- **Efficient Search**: OCR-based text search capabilities
-- **Cloud Management**: Access from anywhere
-- **Team Collaboration**: Secure and efficient sharing features
+- **Privacy Protection**: All screenshots stored locally, never uploaded to cloud
+- **Offline Operation**: Works completely without internet connection
+- **AI Enhancement**: Optional AI analysis while keeping data local
+- **Fast Performance**: Direct file system access for instant operations
+- **Zero Storage Costs**: Use your own disk space, no cloud fees
 
 ## Technical Constraints
 
 ### Required Components
 - .NET 8 or higher
-- Azure subscription
-- GitHub account (for CI/CD)
+- Local file system access
+- Windows, macOS, or Linux desktop
 
-### Recommended Environment
-- Azure AI Foundry access (Walk stage and beyond)
-- Modern browsers (Chrome, Edge, Firefox)
+### Optional Components
+- API keys for AI services (OpenAI, Azure AI, etc.)
+- Local AI models (Ollama, etc.) for offline AI features
 
 ## Success Criteria
 
 ### As Technical Demonstration
-- [ ] Proper utilization of Azure resources
-- [ ] Modern development workflow implementation
-- [ ] Incremental development methodology demonstration
+- [x] Privacy-first local storage implementation
+- [x] Modern .NET 8 component architecture
+- [x] Incremental development methodology demonstration
 - [ ] AI feature integration proof-of-concept
 
 ### As Practical Application
-- [ ] Intuitive UI/UX
-- [ ] Stable file upload functionality
+- [ ] Intuitive desktop UI/UX
+- [x] Reliable local file management
 - [ ] Efficient search capabilities
-- [ ] Responsive design
+- [ ] Cross-platform compatibility
 
 ## Project Constraints
 
@@ -76,9 +77,9 @@ This project aims to demonstrate modern web application development using Azure 
 - Always maintain demo-ready state
 
 ### Technical Constraints
-- Implementation within Azure free tier limitations
-- Adherence to security best practices
-- Scalability-conscious design
+- Local storage limitations (user's available disk space)
+- Adherence to privacy and security best practices
+- Cross-platform compatibility requirements
 
 ### Feature Constraints
 - Crawl stage: Basic file management only

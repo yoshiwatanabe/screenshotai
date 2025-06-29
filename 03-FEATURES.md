@@ -6,114 +6,122 @@ This document outlines the high-level features to be implemented across the thre
 
 ## Stage 1: CRAWL Features
 
-### F1.1 Clipboard-First Upload Interface
+### F1.1 Automatic Clipboard Monitoring
 **Priority**: P0 (Critical)  
-**User Story**: As a user, I want to paste screenshots directly from my clipboard to quickly upload them without saving files first.
+**User Story**: As a user, I want my screenshots to be automatically saved locally when I copy them to clipboard, providing instant backup without manual intervention.
 
 #### Key Requirements
-- **Primary**: Support Ctrl+V / Cmd+V clipboard paste functionality
-- **Secondary**: Support drag-and-drop and file browser as fallback options
-- Detect clipboard content type (image vs other)
-- Handle multiple clipboard operations in sequence
-- Show visual feedback for paste operations
-- Display upload progress and status
-- Handle paste errors gracefully (empty clipboard, invalid content)
+- **Primary**: Automatic clipboard monitoring for image content
+- **Secondary**: Manual capture via global hotkey (Ctrl+Shift+S)
+- Detect clipboard image content automatically
+- Save images to local storage immediately upon detection
+- Show desktop notifications for saved screenshots
+- Run in system tray for background operation
+- Handle multiple clipboard operations gracefully
+- Respect user privacy with local-only storage
 
 #### User Experience Flow
 ```
 1. User takes screenshot (PrintScreen, Snipping Tool, etc.)
-2. User navigates to upload page
-3. User clicks in paste area or presses Ctrl+V
-4. Image appears immediately with upload progress
-5. Upload completes with confirmation
+2. Screenshot Manager detects clipboard image automatically
+3. Image is immediately saved to local Documents/Screenshots folder
+4. Desktop notification confirms successful save
+5. User can access gallery to view/manage saved screenshots
 ```
 
-### F1.2 Smart Image Processing
+### F1.2 Privacy-First Local Storage
 **Priority**: P0 (Critical)  
-**User Story**: As a user, I want my clipboard images processed intelligently so that they're stored efficiently and displayed properly.
+**User Story**: As a user, I want my screenshots stored securely on my local machine with optimization for space and performance, ensuring my sensitive data never leaves my computer.
 
 #### Key Requirements
-- Process clipboard image data (often uncompressed)
-- Auto-generate meaningful filenames from timestamp and content hints
-- Optimize image compression for storage without quality loss
-- Generate thumbnails optimized for gallery display
-- Handle various clipboard image formats (PNG, JPEG from different sources)
-- Store essential metadata automatically
+- **Complete Local Operation**: No cloud dependencies, all processing local
+- **Automatic Image Optimization**: Compress images to optimal quality/size ratio
+- **Smart File Organization**: Organized folder structure in user documents
+- **Thumbnail Generation**: Fast thumbnails for gallery browsing
+- **Multiple Format Support**: Handle PNG, JPEG, BMP from clipboard
+- **Safe File Naming**: Collision-free naming with timestamps and unique IDs
+- **Privacy Protection**: Screenshots never leave the user's machine
+- **Cross-Platform Storage**: Works on Windows, macOS, and Linux
 
-### F1.3 Instant Gallery View
+### F1.3 Desktop Gallery Application
 **Priority**: P0 (Critical)  
-**User Story**: As a user, I want to see my pasted screenshots immediately in a gallery so that I can quickly review and manage them.
+**User Story**: As a user, I want a desktop application to view and manage my locally stored screenshots with fast browsing and organization features.
 
 #### Key Requirements
-- Show newly uploaded screenshots at the top of gallery
-- Display screenshots in responsive grid with thumbnails
-- Real-time updates when new screenshots are pasted
-- Quick preview on hover or click
-- Show timestamp and auto-generated names
-- Support keyboard navigation (arrow keys, enter to view)
-- Handle rapid sequential uploads
+- **Desktop Application**: Native Windows/macOS/Linux app for best performance
+- **Thumbnail Gallery**: Fast grid view of all saved screenshots
+- **Real-time Updates**: Automatically show new screenshots as they're saved
+- **Quick Preview**: Click or hover to view full-size images
+- **File Management**: Rename, delete, and organize screenshots
+- **System Tray Integration**: Run in background with quick access
+- **Keyboard Shortcuts**: Navigate gallery with keyboard
+- **Fast Loading**: Optimized for large collections of screenshots
 
 ### F1.4 Quick Actions
 **Priority**: P1 (Important)  
 **User Story**: As a user, I want to perform quick actions on my screenshots so that I can manage them efficiently.
 
 #### Key Requirements
-- One-click copy of shareable links
-- Quick delete with undo capability
-- Rename screenshots inline
-- Download original images
-- Mark favorites for easy access
+- **Local File Operations**: Open in default image viewer, file explorer
+- **Quick Delete**: Delete with confirmation and undo capability
+- **Rename Screenshots**: Inline editing of screenshot names
+- **Copy to Clipboard**: Copy image back to clipboard for pasting elsewhere
+- **Export Options**: Save to different locations or formats
+- **Mark Favorites**: Star important screenshots for quick access
 
 ---
 
 ## Stage 2: WALK Features
 
-### F2.1 Intelligent Content Detection
+### F2.1 Privacy-First AI Content Detection
 **Priority**: P0 (Critical)  
-**User Story**: As a user, I want the system to automatically understand what's in my screenshots so that I can find them easily later.
+**User Story**: As a user, I want my screenshots analyzed intelligently while keeping all my sensitive data local and private.
 
 #### Key Requirements
-- Extract all text from screenshots using Azure AI Foundry OCR
-- Detect UI elements and application contexts
-- Identify error messages, success states, and key information
-- Generate contextual tags based on clipboard timing and content
-- Recognize common applications and websites automatically
-- Process images quickly to maintain paste-and-go workflow
+- **Local OCR**: Extract text using local Tesseract or similar engines
+- **Optional Cloud AI**: User choice to enhance with OpenAI/Azure AI APIs
+- **Application Detection**: Identify common apps and UI elements locally
+- **Privacy Controls**: Clear consent for any cloud AI usage
+- **Local Processing**: Default to local models for sensitive content
+- **Smart Caching**: Cache AI results locally for fast re-access
+- **Offline Capability**: Core features work without internet
 
-### F2.2 Context-Aware Organization
+### F2.2 Local Smart Organization
 **Priority**: P0 (Critical)  
-**User Story**: As a user, I want my screenshots organized automatically based on when and what I was working on.
+**User Story**: As a user, I want my screenshots organized automatically using local intelligence without sending my data anywhere.
 
 #### Key Requirements
-- Group screenshots taken within short time periods
-- Detect work sessions and project contexts
-- Auto-suggest organization based on detected applications
-- Create temporal clusters (morning session, afternoon work, etc.)
-- Identify related screenshots by content similarity
-- Allow manual override of automatic grouping
+- **Local Clustering**: Group related screenshots using local algorithms
+- **Time-Based Sessions**: Detect work sessions based on local patterns
+- **Local Content Analysis**: Organize by detected applications and content types
+- **User-Controlled Rules**: Custom organization rules stored locally
+- **Local Similarity Detection**: Find similar screenshots using local image processing
+- **Privacy-First**: All organization logic runs entirely locally
 
-### F2.3 Natural Language Search
+### F2.3 Local Fast Search
 **Priority**: P0 (Critical)  
-**User Story**: As a user, I want to search for screenshots using natural language so that I can find specific content quickly.
+**User Story**: As a user, I want to search my screenshots instantly using text and metadata, with all search happening locally for privacy and speed.
 
 #### Key Requirements
-- Search through all extracted text content
-- Support queries like "error message from yesterday" or "login screen"
-- Filter by time periods naturally ("last week", "this morning")
-- Find screenshots by application type ("browser screenshots", "VS Code")
-- Combine content and context searches
-- Provide instant search results as user types
+- **Local SQLite Full-Text Search**: Fast FTS5-powered search
+- **Instant Results**: Sub-second search response times
+- **Text Content Search**: Search all extracted OCR text locally
+- **Metadata Search**: Filter by date, application, file type
+- **Combined Queries**: Mix text and metadata filters
+- **Search History**: Local search history for quick re-searches
+- **No Cloud Dependencies**: All search processing happens locally
 
-### F2.4 Quick Insights Panel
+### F2.4 Local Analysis Dashboard
 **Priority**: P1 (Important)  
-**User Story**: As a user, I want to see what the AI detected in my screenshots so that I can understand and verify the automatic processing.
+**User Story**: As a user, I want to see insights about my screenshots with complete transparency about what data is processed and how.
 
 #### Key Requirements
-- Show extracted text in copyable format
-- Display detected applications and UI elements
-- Indicate confidence levels for AI predictions
-- Allow correction of misidentified content
-- Show processing status for recent uploads
+- **Local Analysis Results**: Show what was detected by local AI models
+- **Privacy Transparency**: Clear indication of local vs cloud processing
+- **Extracted Text Display**: Copyable text content from OCR
+- **Confidence Indicators**: Show AI confidence levels for local processing
+- **User Corrections**: Allow manual correction of AI results (stored locally)
+- **Processing History**: Local log of all analysis performed
 
 ---
 
