@@ -43,7 +43,7 @@ This roadmap follows a **Crawl/Walk/Run** approach, ensuring each stage delivers
 - [ ] Responsive gallery interface
 - [ ] Automated deployment working
 - [ ] Basic error handling implemented
-- [ ] Component documentation complete
+- [x] Component documentation complete (Domain Component)
 
 ---
 
