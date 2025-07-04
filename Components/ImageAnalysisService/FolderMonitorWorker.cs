@@ -13,12 +13,12 @@ namespace ImageAnalysisService
         private readonly ILogger<FolderMonitorWorker> _logger;
         private readonly string _watchPath;
         private readonly ProcessingChannel _channel;
-        private FileSystemWatcher _watcher;
+        private FileSystemWatcher? _watcher;
 
         public FolderMonitorWorker(ILogger<FolderMonitorWorker> logger, IOptions<FolderMonitorOptions> options, ProcessingChannel channel)
         {
             _logger = logger;
-            _watchPath = options.Value.Path;
+            _watchPath = options.Value.Path!;
             _channel = channel;
         }
 
@@ -62,6 +62,6 @@ namespace ImageAnalysisService
 
     public class FolderMonitorOptions
     {
-        public string Path { get; set; }
+        public string? Path { get; set; }
     }
 }

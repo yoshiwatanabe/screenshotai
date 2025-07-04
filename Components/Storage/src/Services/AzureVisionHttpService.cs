@@ -27,7 +27,15 @@ public class AzureVisionHttpService
     {
         if (!_options.Enabled)
         {
+            _logger.LogInformation("Azure Vision API is disabled. Skipping analysis.");
             return null;
+        }
+
+        if (_options.Simulate)
+        {
+            _logger.LogInformation("Azure Vision API simulation enabled. Returning dummy analysis result.");
+            // Return a dummy JSON string that mimics a successful Azure Vision API response
+            return "{\"captionResult\":{\"text\":\"A simulated image analysis\",\"confidence\":0.95},\"tagsResult\":{\"values\":[{\"name\":\"simulated\",\"confidence\":0.99},{\"name\":\"test\",\"confidence\":0.8}]},\"readResult\":{\"blocks\":[{\"lines\":[{\"text\":\"Simulated text from image\"}]}]},\"objectsResult\":{\"values\":[{\"tags\":[{\"name\":\"simulated object\",\"confidence\":0.9}]}]},\"peopleResult\":{\"values\":[{},{}]}}";
         }
 
         try
@@ -200,6 +208,7 @@ public class AzureVisionHttpService
 public class AzureVisionOptions
 {
     public bool Enabled { get; set; } = false;
+    public bool Simulate { get; set; } = false; // New property for simulation
     public string Endpoint { get; set; } = string.Empty;
     public string ApiKey { get; set; } = string.Empty;
     public int TimeoutSeconds { get; set; } = 30;

@@ -187,4 +187,4 @@ Logs/
 *.tmp
 *.temp
 temp/
-tmp/
+tmp/_watch/

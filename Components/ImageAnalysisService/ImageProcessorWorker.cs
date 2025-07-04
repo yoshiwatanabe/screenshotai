@@ -38,7 +38,21 @@ namespace ImageAnalysisService
 
                     _logger.LogInformation($"Processing file: {filePath}");
 
-                    var analysisResult = await visionService.AnalyzeImageAsync(filePath, stoppingToken);
+                    if (!File.Exists(filePath))
+                    {
+                        _logger.LogWarning($"File not found: {filePath}. Skipping processing.");
+                        continue;
+                    }
+
+                    byte[] imageBytes = await File.ReadAllBytesAsync(filePath, stoppingToken);
+
+                    if (imageBytes.Length == 0)
+                    {
+                        _logger.LogWarning($"File is empty: {filePath}. Skipping analysis.");
+                        continue;
+                    }
+
+                    var analysisResult = await visionService.AnalyzeImageAsync(imageBytes, stoppingToken);
 
                     if (analysisResult != null)
                     {
@@ -46,6 +60,10 @@ namespace ImageAnalysisService
                         var jsonFilePath = Path.ChangeExtension(filePath, ".json");
                         await File.WriteAllTextAsync(jsonFilePath, json, stoppingToken);
                         _logger.LogInformation($"Analysis saved to: {jsonFilePath}");
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Azure Vision analysis returned no result for file: {filePath}. Check previous logs for errors or if simulation is enabled.");
                     }
                 }
                 catch (Exception ex)
