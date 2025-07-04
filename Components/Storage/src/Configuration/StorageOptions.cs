@@ -1,4 +1,5 @@
 using Storage.Models;
+using Storage.Services;
 
 namespace Storage.Configuration;
 
@@ -9,4 +10,5 @@ public class StorageOptions
     public ImageOptimizationSettings DefaultOptimization { get; set; } = new();
     public bool CreateDirectoriesIfNotExist { get; set; } = true;
     public long MaxFileSizeBytes { get; set; } = 50 * 1024 * 1024; // 50MB
+    public AzureVisionOptions AzureVision { get; set; } = new();
 }

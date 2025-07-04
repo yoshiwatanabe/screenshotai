@@ -1,17 +1,3 @@
-# .NET build outputs
-bin/
-obj/
-
-# User-specific files
-*.rsuser
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
-# User-specific folders
-.vs/
-
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -19,61 +5,17 @@ obj/
 [Rr]eleases/
 x64/
 x86/
+[Ww][Ii][Nn]32/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
 bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+[Ll]ogs/
 
-# .NET Core
-project.lock.json
-project.fragment.lock.json
-artifacts/
-
-# StyleCop
-StyleCopReport.xml
-
-# Files built by Visual Studio
-*_i.c
-*_p.c
-*_h.h
-*.ilk
-*.meta
-*.obj
-*.iobj
-*.pch
-*.pdb
-*.ipdb
-*.pgc
-*.pgd
-*.rsp
-*.sbr
-*.tlb
-*.tli
-*.tlh
-*.tmp
-*.tmp_proj
-*_wpftmp.csproj
-*.log
-*.vspscc
-*.vssscc
-.builds
-*.pidb
-*.svclog
-*.scc
-
-# Test Coverage
-*.coverage
-*.coveragexml
-
-# NuGet
-*.nupkg
-*.snupkg
-[Pp]ackages/
-.nuget/
-!**/packages/build/
-!**/packages/repositories.config
+# Visual Studio 2015/2017 cache/options directory
+.vs/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -84,17 +26,165 @@ StyleCopReport.xml
 TestResult.xml
 nunit-*.xml
 
-# Build Results of an ATL Project
-[Dd]ebugPS/
-[Rr]eleasePS/
-dlldata.c
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
 
-# Benchmark Results
-BenchmarkDotNet.Artifacts/
+# Files built by Visual Studio
+*.obj
+*.pdb
+*.log
+*.tlog
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
 
-# .NET 5/6/7/8
-**/bin/
-**/obj/
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+*.sap
 
-# Environment variables
+# ReSharper is a .NET coding add-in
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Visual Studio code coverage results
+*.coverage
+*.coveragexml
+
+# Web workbench (sass)
+.sass-cache/
+
+# Publish Web Output
+*.[Pp]ublish.xml
+*.azurePubxml
+*.pubxml
+*.publishproj
+
+# Microsoft Azure Web App publish settings
+*.azurePubxml
+
+# Windows Store app package directories and files
+AppPackages/
+BundleArtifacts/
+Package.StoreAssociation.xml
+_pkginfo.txt
+*.appx
+*.appxbundle
+*.appxupload
+
+# Visual Studio cache files
+*.[Cc]ache
+
+# Others
+ClientBin/
+~$*
+*~
+*.dbmdl
+*.dbproj.schemaview
+*.jfm
+*.pfx
+*.publishsettings
+orleans.codegen.cs
+
+# SQL Server files
+*.mdf
+*.ldf
+*.ndf
+
+# Node.js Tools for Visual Studio
+.ntvs_analysis.dat
+node_modules/
+
+# Visual Studio 6 build log
+*.plg
+
+# Visual Studio 6 workspace options file
+*.opt
+
+# Python Tools for Visual Studio (PTVS)
+__pycache__/
+*.pyc
+
+# MSBuild Binary and Structured Log
+*.binlog
+
+# Local History for Visual Studio
+.localhistory/
+
+# Visual Studio History (VSHistory) files
+.vshistory/
+
+# Backup folder for Package Reference Convert tool in Visual Studio 2017
+MigrationBackup/
+
+# Ionide (cross platform F# VS Code tools) working folder
+.ionide/
+
+# VS Code files for those working on multiple tools
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Local History for Visual Studio Code
+.history/
+
+# Windows Installer files from build outputs
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# JetBrains Rider
+*.sln.iml
+
+# SECURITY: Environment variables and secrets
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.development
+.env.staging
+.env.production
+
+# User secrets
+secrets.json
+appsettings.*.json
+!appsettings.json
+!appsettings.example.json
+
+# Azure Resource Manager (ARM) template outputs
+*.azurerm
+
+# Docker
+.dockerignore
+Dockerfile*
+docker-compose*
+
+# MacOS
+.DS_Store
+
+# Screenshots and test files (if you don't want to commit them)
+Screenshots/
+TestScreenshots/
+**/Screenshots/
+**/TestScreenshots/
+
+# Log files
+*.log
+logs/
+Logs/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
