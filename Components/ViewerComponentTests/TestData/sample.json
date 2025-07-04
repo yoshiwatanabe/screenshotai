@@ -1,0 +1,46 @@
+{
+  "categories": [
+    {
+      "name": "abstract_",
+      "score": 0.00390625
+    }
+  ],
+  "tags": [
+    {
+      "name": "screenshot",
+      "confidence": 0.9482421875
+    },
+    {
+      "name": "text",
+      "confidence": 0.8876953125
+    }
+  ],
+  "description": {
+    "tags": [
+      "screenshot",
+      "text"
+    ],
+    "captions": [
+      {
+        "text": "a screenshot of a computer screen",
+        "confidence": 0.7123456789
+      }
+    ]
+  },
+  "requestId": "test-request-id",
+  "metadata": {
+    "height": 1080,
+    "width": 1920,
+    "format": "Png"
+  },
+  "color": {
+    "dominantColorForeground": "White",
+    "dominantColorBackground": "White",
+    "dominantColors": [
+      "White"
+    ],
+    "accentColor": "0078D4",
+    "isBwImg": false,
+    "isBWImg": false
+  }
+}
