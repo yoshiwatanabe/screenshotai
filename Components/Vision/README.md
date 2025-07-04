@@ -65,4 +65,4 @@ public class MyService
 ```
 
 ## Testing
-This component does not currently have dedicated unit tests. Future development should include tests for `AzureVisionHttpService` to ensure proper API interaction and response parsing.
+This component has dedicated unit tests in `Components/VisionTests/`, ensuring proper API interaction and response parsing, especially in simulation mode.

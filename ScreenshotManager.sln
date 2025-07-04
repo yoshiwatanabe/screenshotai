@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageAnalysisService", "Com
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vision", "Components\Vision\Vision.csproj", "{0C1032A8-DBDB-4B7F-848D-E178C105FABB}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisionTests", "Components\VisionTests\VisionTests.csproj", "{A1B2C3D4-E5F6-4789-A123-456789ABCDEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{0C1032A8-DBDB-4B7F-848D-E178C105FABB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C1032A8-DBDB-4B7F-848D-E178C105FABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C1032A8-DBDB-4B7F-848D-E178C105FABB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B2C3D4-E5F6-4789-A123-456789ABCDEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-4789-A123-456789ABCDEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-4789-A123-456789ABCDEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-4789-A123-456789ABCDEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
