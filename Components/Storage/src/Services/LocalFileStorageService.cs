@@ -130,8 +130,8 @@ public class LocalFileStorageService : ILocalStorageService, IScreenshotStorageS
                 throw new StorageException(StorageErrorCode.BlobNotFound, fileName, $"Image file not found: {fileName}");
             }
 
-            var fileStream = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return fileStream;
+            var fileStream = File.OpenRead(imagePath);
+            return await Task.FromResult(fileStream);
         }
         catch (StorageException)
         {
