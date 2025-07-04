@@ -14,16 +14,12 @@ public class LocalFileStorageService : ILocalStorageService, IScreenshotStorageS
 {
     private readonly StorageOptions _options;
     private readonly ILogger<LocalFileStorageService> _logger;
-    private readonly AzureVisionHttpService? _visionService;
-
     public LocalFileStorageService(
         IOptions<StorageOptions> options,
-        ILogger<LocalFileStorageService> logger,
-        AzureVisionHttpService? visionService = null)
+        ILogger<LocalFileStorageService> logger)
     {
         _options = options.Value;
         _logger = logger;
-        _visionService = visionService;
         
         EnsureDirectoriesExist();
     }
@@ -53,28 +49,6 @@ public class LocalFileStorageService : ILocalStorageService, IScreenshotStorageS
             };
 
             await Task.WhenAll(uploadTasks);
-
-            // Optionally analyze image with Azure Vision
-            string? aiDescription = null;
-            if (_visionService != null && _options.AzureVision.Enabled)
-            {
-                try
-                {
-                    aiDescription = await _visionService.AnalyzeImageAsync(optimizedResult.OptimizedImageData, cancellationToken);
-                    if (!string.IsNullOrEmpty(aiDescription))
-                    {
-                        _logger.LogInformation("Azure Vision analysis completed for {FileName}", fileName);
-                        
-                        // Save description to a text file alongside the image
-                        var descriptionPath = Path.ChangeExtension(imagePath, ".txt");
-                        await File.WriteAllTextAsync(descriptionPath, aiDescription, cancellationToken);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Azure Vision analysis failed for {FileName}", fileName);
-                }
-            }
 
             stopwatch.Stop();
             

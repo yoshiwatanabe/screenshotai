@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Storage.Configuration;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using Vision.Configuration;
 
-namespace Storage.Services;
+namespace Vision.Services;
 
 public class AzureVisionHttpService
 {
@@ -21,6 +21,13 @@ public class AzureVisionHttpService
         _httpClient = httpClient;
         _logger = logger;
         _options = options.Value;
+
+        // Directly set BaseAddress here for debugging purposes
+        if (!string.IsNullOrEmpty(_options.Endpoint))
+        {
+            _httpClient.BaseAddress = new Uri(_options.Endpoint);
+            _logger.LogDebug($"HttpClient BaseAddress set directly in constructor to: {_httpClient.BaseAddress}");
+        }
     }
 
     public async Task<string?> AnalyzeImageAsync(byte[] imageData, CancellationToken cancellationToken = default)
@@ -40,10 +47,8 @@ public class AzureVisionHttpService
 
         try
         {
-            // Use the official 4.0 API endpoint and version
-            var endpoint = $"{_options.Endpoint.TrimEnd('/')}/computervision/imageanalysis:analyze";
-            
-            // Build query parameters according to 4.0 API specification
+            // Build relative path and query parameters according to 4.0 API specification
+            var relativePath = "computervision/imageanalysis:analyze";
             var queryParams = new List<string>
             {
                 "api-version=2024-02-01",
@@ -52,7 +57,11 @@ public class AzureVisionHttpService
                 $"gender-neutral-caption={_options.GenderNeutralCaption.ToString().ToLower()}"
             };
             
-            var requestUri = $"{endpoint}?{string.Join("&", queryParams)}";
+            var requestUri = $"{relativePath}?{string.Join("&", queryParams)}";
+
+            _logger.LogDebug($"Azure Vision Endpoint: {_options.Endpoint}");
+            _logger.LogDebug($"Azure Vision API Key (length: {_options.ApiKey.Length}): {(_options.ApiKey.Length > 4 ? "..." + _options.ApiKey.Substring(_options.ApiKey.Length - 4) : "(empty)")}");
+            _logger.LogDebug($"Request URI: {requestUri}");
 
             using var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
             
@@ -205,15 +214,3 @@ public class AzureVisionHttpService
     }
 }
 
-public class AzureVisionOptions
-{
-    public bool Enabled { get; set; } = false;
-    public bool Simulate { get; set; } = false; // New property for simulation
-    public string Endpoint { get; set; } = string.Empty;
-    public string ApiKey { get; set; } = string.Empty;
-    public int TimeoutSeconds { get; set; } = 30;
-    public string Language { get; set; } = "en";
-    public bool GenderNeutralCaption { get; set; } = true;
-    public List<string> Features { get; set; } = new() { "caption", "read", "tags", "objects", "people" };
-    public double MinConfidenceThreshold { get; set; } = 0.5;
-}

@@ -6,8 +6,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Components\Domain
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Storage", "Components\Storage\Storage.csproj", "{C3D4E5F6-A7B8-4901-C345-6789ABCDEF01}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GalleryViewer", "Components\GalleryViewer\GalleryViewer.csproj", "{F6A7B8C9-D0E1-4234-F678-9ABCDEF01234}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DomainTests", "Components\DomainTests\DomainTests.csproj", "{A7B8C9D0-E1F2-4345-A789-ABCDEF012345}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalStorageTests", "Components\LocalStorageTests\LocalStorageTests.csproj", "{B8C9D0E1-F2A3-4456-B890-BCDEF0123456}"
@@ -15,6 +13,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Components", "Components", "{7144023A-8DC3-4AA5-9140-72F6E3E457F4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageAnalysisService", "Components\ImageAnalysisService\ImageAnalysisService.csproj", "{AA79D14E-175C-4E4F-AB8D-1F3E29386C41}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vision", "Components\Vision\Vision.csproj", "{0C1032A8-DBDB-4B7F-848D-E178C105FABB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,10 +30,6 @@ Global
 		{C3D4E5F6-A7B8-4901-C345-6789ABCDEF01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3D4E5F6-A7B8-4901-C345-6789ABCDEF01}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3D4E5F6-A7B8-4901-C345-6789ABCDEF01}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F6A7B8C9-D0E1-4234-F678-9ABCDEF01234}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F6A7B8C9-D0E1-4234-F678-9ABCDEF01234}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F6A7B8C9-D0E1-4234-F678-9ABCDEF01234}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F6A7B8C9-D0E1-4234-F678-9ABCDEF01234}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A7B8C9D0-E1F2-4345-A789-ABCDEF012345}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A7B8C9D0-E1F2-4345-A789-ABCDEF012345}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7B8C9D0-E1F2-4345-A789-ABCDEF012345}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -46,11 +42,16 @@ Global
 		{AA79D14E-175C-4E4F-AB8D-1F3E29386C41}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA79D14E-175C-4E4F-AB8D-1F3E29386C41}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA79D14E-175C-4E4F-AB8D-1F3E29386C41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C1032A8-DBDB-4B7F-848D-E178C105FABB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C1032A8-DBDB-4B7F-848D-E178C105FABB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C1032A8-DBDB-4B7F-848D-E178C105FABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C1032A8-DBDB-4B7F-848D-E178C105FABB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{AA79D14E-175C-4E4F-AB8D-1F3E29386C41} = {7144023A-8DC3-4AA5-9140-72F6E3E457F4}
+		{0C1032A8-DBDB-4B7F-848D-E178C105FABB} = {7144023A-8DC3-4AA5-9140-72F6E3E457F4}
 	EndGlobalSection
 EndGlobal

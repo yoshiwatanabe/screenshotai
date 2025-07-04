@@ -188,3 +188,4 @@ Logs/
 *.temp
 temp/
 tmp/_watch/
+_watch/

@@ -1,6 +1,8 @@
 using DotNetEnv;
 using ImageAnalysisService;
 using Storage.Extensions;
+using Vision.Configuration;
+using Vision.Extensions;
 
 // Function to find .env file in parent directories
 static string? FindEnvFile(string startDirectory)
@@ -27,14 +29,16 @@ if (envFilePath != null)
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddWindowsService();
-
 // Add environment variables to configuration
 builder.Configuration.AddEnvironmentVariables();
+
+builder.Services.AddWindowsService();
 
 builder.Services.AddSingleton<ProcessingChannel>();
 builder.Services.AddOptions<FolderMonitorOptions>().Bind(builder.Configuration.GetSection(nameof(FolderMonitorOptions)));
 builder.Services.AddLocalStorageServices(builder.Configuration);
+builder.Services.AddVisionServices(builder.Configuration);
+builder.Services.AddOptions<AzureVisionOptions>().Bind(builder.Configuration);
 builder.Services.AddHostedService<FolderMonitorWorker>();
 builder.Services.AddHostedService<ImageProcessorWorker>();
 
