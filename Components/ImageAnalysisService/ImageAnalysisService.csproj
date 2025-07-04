@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -17,5 +17,6 @@
     <ProjectReference Include="..\Storage\Storage.csproj" />
     <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\Vision\Vision.csproj" />
+    <ProjectReference Include="..\ViewerComponent\ViewerComponent.csproj" />
   </ItemGroup>
 </Project>
