@@ -9,6 +9,6 @@ public class AzureVisionOptions
     public int TimeoutSeconds { get; set; } = 30;
     public string Language { get; set; } = "en";
     public bool GenderNeutralCaption { get; set; } = true;
-    public List<string> Features { get; set; } = new() { "caption", "read", "tags", "objects", "people" };
+    public List<string> Features { get; set; } = new() { "read", "tags", "objects", "people" };
     public double MinConfidenceThreshold { get; set; } = 0.5;
 }
