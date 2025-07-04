@@ -41,4 +41,4 @@ dotnet run --project Components/ImageAnalysisService/ImageAnalysisService.csproj
 Ensure that the required environment variables (`AZURE_VISION__ENDPOINT`, `AZURE_VISION__APIKEY`) are set before running the application. Refer to the main `README.md` for detailed instructions.
 
 ## Testing
-This component's functionality is primarily tested through integration with its dependent services. There are no dedicated unit tests for `ImageAnalysisService` itself, but its core logic relies on the well-tested `Vision` and `Storage` components.
+This component has dedicated unit tests in `Components/ImageAnalysisServiceTests/`.
