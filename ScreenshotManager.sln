@@ -8,7 +8,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Storage", "Components\Stora
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DomainTests", "Components\DomainTests\DomainTests.csproj", "{A7B8C9D0-E1F2-4345-A789-ABCDEF012345}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalStorageTests", "Components\LocalStorageTests\LocalStorageTests.csproj", "{B8C9D0E1-F2A3-4456-B890-BCDEF0123456}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StorageTests", "Components\StorageTests\StorageTests.csproj", "{B8C9D0E1-F2A3-4456-B890-BCDEF0123456}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Components", "Components", "{7144023A-8DC3-4AA5-9140-72F6E3E457F4}"
 EndProject

@@ -57,4 +57,4 @@ public class MyService
 ```
 
 ## Testing
-The `Storage` component has dedicated unit tests in `Components/StorageTests/` and integration tests in `Components/StorageIntegrationTests/` (though these were recently removed from the solution, their code might still exist for reference). These tests cover file saving, thumbnail generation, and error handling.
+The `Storage` component has dedicated unit tests in `Components/StorageTests/`. These tests cover file saving, thumbnail generation, and error handling.
