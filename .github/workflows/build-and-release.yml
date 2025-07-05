@@ -8,9 +8,7 @@ on:
     branches: [ main ]
 
 permissions:
-  actions: read
   contents: read
-  security-events: write
 
 env:
   DOTNET_VERSION: '8.0.x'
@@ -106,6 +104,8 @@ jobs:
     needs: [test, build]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
     
     steps:
     - uses: actions/checkout@v4
