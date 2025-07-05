@@ -180,11 +180,15 @@ jobs:
           filename=$(basename "$file")
           echo "Uploading $filename..."
           
+          # GitHub API expects the upload URL to be modified to include the filename
+          upload_url="${{ steps.create_release.outputs.upload_url }}"
+          upload_url="${upload_url%\{*\}}"  # Remove the {?name,label} template part
+          
           curl -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/octet-stream" \
             --data-binary @"$file" \
-            "${{ steps.create_release.outputs.upload_url }}?name=$filename"
+            "${upload_url}?name=${filename}"
         done
 
   security-scan:
