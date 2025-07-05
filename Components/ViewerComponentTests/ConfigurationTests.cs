@@ -35,6 +35,7 @@ public class ConfigurationTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging(); // Add logging services for ViewerService
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
