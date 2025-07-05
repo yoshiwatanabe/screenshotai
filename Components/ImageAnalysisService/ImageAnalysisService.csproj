@@ -19,4 +19,12 @@
     <ProjectReference Include="..\Vision\Vision.csproj" />
     <ProjectReference Include="..\ViewerComponent\ViewerComponent.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\ViewerComponent\wwwroot\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <TargetPath>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+    </Content>
+  </ItemGroup>
 </Project>

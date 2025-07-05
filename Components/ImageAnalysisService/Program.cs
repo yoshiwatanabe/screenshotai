@@ -58,7 +58,15 @@ app.Urls.Add($"http://{viewerOptions.Host}:{viewerOptions.Port}");
 app.UseRouting();
 
 // Serve ViewerComponent static files
-var viewerComponentPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "ViewerComponent", "wwwroot"));
+// First try the published location (wwwroot next to executable)
+var viewerComponentPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+
+// If not found, try the development location
+if (!Directory.Exists(viewerComponentPath))
+{
+    viewerComponentPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "ViewerComponent", "wwwroot"));
+}
+
 if (Directory.Exists(viewerComponentPath))
 {
     app.UseStaticFiles(new StaticFileOptions
@@ -66,14 +74,21 @@ if (Directory.Exists(viewerComponentPath))
         FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(viewerComponentPath),
         RequestPath = ""
     });
+    
+    app.MapControllers();
+
+    // Fallback to serve index.html for SPA routing
+    app.MapFallbackToFile("index.html", new StaticFileOptions
+    {
+        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(viewerComponentPath)
+    });
 }
-
-app.MapControllers();
-
-// Fallback to serve index.html for SPA routing
-app.MapFallbackToFile("index.html", new StaticFileOptions
+else
 {
-    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(viewerComponentPath)
-});
+    app.MapControllers();
+    
+    // If no wwwroot found, just serve a simple message
+    app.MapGet("/", () => "ScreenshotAI is running, but web UI files are missing. Please check the wwwroot directory.");
+}
 
 app.Run();
