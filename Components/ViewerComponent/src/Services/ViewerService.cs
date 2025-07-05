@@ -75,7 +75,7 @@ public class ViewerService : IViewerService
             
             if (!File.Exists(jsonPath))
             {
-                _logger.LogWarning("Analysis file not found: {FilePath}", jsonPath);
+                _logger.LogWarning("Analysis file not found: {FilePath}", jsonPath.Replace("\n", "").Replace("\r", ""));
                 return null;
             }
 
