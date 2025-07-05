@@ -207,9 +207,11 @@ public class LocalFileStorageServiceTests : IDisposable
         _output.WriteLine($"✓ Upload completed: {uploadResult.BlobName}");
 
         // Act & Assert - Retrieve
-        using var retrievedStream = await _storageService.GetImageStreamAsync(uploadResult.BlobName);
-        Assert.NotNull(retrievedStream);
-        _output.WriteLine("✓ Image retrieved successfully");
+        using (var retrievedStream = await _storageService.GetImageStreamAsync(uploadResult.BlobName))
+        {
+            Assert.NotNull(retrievedStream);
+            _output.WriteLine("✓ Image retrieved successfully");
+        } // Explicitly dispose stream before proceeding
 
         // Act & Assert - Get Paths
         var imagePath = await _storageService.GetImagePathAsync(uploadResult.BlobName);
@@ -222,6 +224,9 @@ public class LocalFileStorageServiceTests : IDisposable
         var isHealthy = await _storageService.IsHealthyAsync();
         Assert.True(isHealthy);
         _output.WriteLine("✓ Health check passed");
+
+        // Small delay to ensure file handles are released (Windows file locking)
+        await Task.Delay(100);
 
         // Act & Assert - Delete
         var deleteResult = await _storageService.DeleteImageAsync(uploadResult.BlobName);

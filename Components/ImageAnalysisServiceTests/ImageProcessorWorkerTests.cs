@@ -16,20 +16,27 @@ public class ImageProcessorWorkerTests
     {
         // Arrange
         var channel = new ProcessingChannel();
-        var testFilePath = "/tmp/test_image.png";
+        var tempDir = Path.Combine(Path.GetTempPath(), "ImageAnalysisServiceTests");
+        Directory.CreateDirectory(tempDir);
+        var testFilePath = Path.Combine(tempDir, "test_image.png");
         await File.WriteAllBytesAsync(testFilePath, new byte[] { 0x01, 0x02, 0x03 });
 
-        // Act
-        await channel.Writer.WriteAsync(testFilePath);
-        channel.Writer.Complete();
+        try
+        {
+            // Act
+            await channel.Writer.WriteAsync(testFilePath);
+            channel.Writer.Complete();
 
-        // Assert
-        var result = await channel.Reader.ReadAsync();
-        Assert.Equal(testFilePath, result);
-
-        // Clean up
-        if (File.Exists(testFilePath))
-            File.Delete(testFilePath);
+            // Assert
+            var result = await channel.Reader.ReadAsync();
+            Assert.Equal(testFilePath, result);
+        }
+        finally
+        {
+            // Clean up
+            if (File.Exists(testFilePath))
+                File.Delete(testFilePath);
+        }
     }
 
     [Fact]
