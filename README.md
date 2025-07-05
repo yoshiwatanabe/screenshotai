@@ -30,6 +30,8 @@ ScreenshotAI is a powerful .NET application that automatically monitors director
 
 2. **Extract** the downloaded file to your preferred location
 
+   > **⚠️ Windows Users**: After extracting, you may need to "unblock" the executable. Right-click on `ImageAnalysisService.exe` → Properties → Check "Unblock" → OK. This removes Windows security restrictions on downloaded files.
+
 3. **Set up Azure Vision API** (see [Azure Setup](#azure-vision-api-setup) below)
 
 4. **Run** the application:
