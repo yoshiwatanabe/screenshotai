@@ -187,5 +187,8 @@ Logs/
 *.tmp
 *.temp
 temp/
-tmp/_watch/
+tmp/
+
+# Application runtime directories
 _watch/
+_output/
