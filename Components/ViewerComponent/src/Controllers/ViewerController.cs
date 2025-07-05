@@ -25,7 +25,7 @@ public class ViewerController : ControllerBase
     public async Task<IActionResult> GetImage(string filename, CancellationToken cancellationToken)
     {
         var imageData = await _viewerService.GetImageAsync(filename, cancellationToken);
-        
+
         if (imageData == null)
         {
             return NotFound();
@@ -38,7 +38,7 @@ public class ViewerController : ControllerBase
     public async Task<IActionResult> GetAnalysis(string filename, CancellationToken cancellationToken)
     {
         var analysisData = await _viewerService.GetAnalysisAsync(filename, cancellationToken);
-        
+
         if (analysisData == null)
         {
             return NotFound();

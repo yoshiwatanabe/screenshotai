@@ -5,7 +5,7 @@ public class StorageException : Exception
     public StorageErrorCode ErrorCode { get; }
     public string BlobName { get; }
 
-    public StorageException(StorageErrorCode errorCode, string blobName, string message) 
+    public StorageException(StorageErrorCode errorCode, string blobName, string message)
         : base(message)
     {
         ErrorCode = errorCode;

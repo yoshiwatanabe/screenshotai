@@ -26,7 +26,7 @@ public class BlobReferenceTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData(null)]
-    public void Constructor_InvalidContainerName_ThrowsArgumentException(string invalidContainerName)
+    public void Constructor_InvalidContainerName_ThrowsArgumentException(string? invalidContainerName)
     {
         // Arrange
         var blobName = "test-blob.png";

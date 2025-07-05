@@ -56,7 +56,7 @@ public class AzureVisionHttpService
                 $"language={_options.Language}",
                 $"gender-neutral-caption={_options.GenderNeutralCaption.ToString().ToLower()}"
             };
-            
+
             var requestUri = $"{relativePath}?{string.Join("&", queryParams)}";
 
             _logger.LogDebug($"Azure Vision Endpoint: {_options.Endpoint}");
@@ -64,7 +64,7 @@ public class AzureVisionHttpService
             _logger.LogDebug($"Request URI: {requestUri}");
 
             using var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
-            
+
             // Set headers according to 4.0 API specification
             request.Headers.Add("Ocp-Apim-Subscription-Key", _options.ApiKey);
             request.Content = new ByteArrayContent(imageData);
@@ -73,11 +73,11 @@ public class AzureVisionHttpService
             _logger.LogDebug("Sending image analysis request to Azure Vision API 4.0");
 
             using var response = await _httpClient.SendAsync(request, cancellationToken);
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-                _logger.LogWarning("Azure Vision API returned error {StatusCode}: {Error}", 
+                _logger.LogWarning("Azure Vision API returned error {StatusCode}: {Error}",
                     response.StatusCode, errorContent);
                 return null;
             }

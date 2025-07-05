@@ -15,7 +15,7 @@ public static class ServiceCollectionExtensions
             configuration.GetSection(ViewerOptions.SectionName));
 
         services.AddScoped<IViewerService, ViewerService>();
-        
+
         services.AddControllers();
         services.AddCors(options =>
         {

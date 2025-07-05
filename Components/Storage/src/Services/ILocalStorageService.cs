@@ -5,7 +5,7 @@ namespace Storage.Services;
 public interface ILocalStorageService
 {
     Task<UploadResult> UploadFromClipboardAsync(
-        byte[] imageData, 
+        byte[] imageData,
         string fileName,
         CancellationToken cancellationToken = default);
 

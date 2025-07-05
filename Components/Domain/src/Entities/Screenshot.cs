@@ -10,7 +10,7 @@ public class Screenshot
     public DateTime CreatedAt { get; private set; }
     public ScreenshotSource Source { get; private set; }
     public ScreenshotStatus Status { get; private set; }
-    
+
     public string? ExtractedText { get; private set; }
     public List<string> Tags { get; private set; }
     public string? FailureReason { get; private set; }
@@ -19,7 +19,7 @@ public class Screenshot
     {
         if (string.IsNullOrWhiteSpace(displayName))
             throw new ArgumentException("Display name cannot be null or empty", nameof(displayName));
-        
+
         if (string.IsNullOrWhiteSpace(blobName))
             throw new ArgumentException("Blob name cannot be null or empty", nameof(blobName));
 

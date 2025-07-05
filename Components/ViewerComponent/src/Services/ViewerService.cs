@@ -21,7 +21,7 @@ public class ViewerService : IViewerService
         try
         {
             var outputDirectory = Path.GetFullPath(_options.OutputDirectory);
-            
+
             if (!Directory.Exists(outputDirectory))
             {
                 _logger.LogWarning("Output directory does not exist: {Directory}", outputDirectory);
@@ -49,7 +49,7 @@ public class ViewerService : IViewerService
         {
             var sanitizedFilename = Path.GetFileName(filename);
             var imagePath = Path.Combine(_options.OutputDirectory, sanitizedFilename);
-            
+
             if (!File.Exists(imagePath))
             {
                 _logger.LogWarning("Image file not found: {FilePath}", imagePath);
@@ -72,7 +72,7 @@ public class ViewerService : IViewerService
             var sanitizedFilename = Path.GetFileName(filename);
             var jsonFilename = Path.ChangeExtension(sanitizedFilename, ".json");
             var jsonPath = Path.Combine(_options.OutputDirectory, jsonFilename);
-            
+
             if (!File.Exists(jsonPath))
             {
                 _logger.LogWarning("Analysis file not found: {FilePath}", jsonPath);
@@ -94,7 +94,7 @@ public class ViewerService : IViewerService
         {
             var imageFiles = await GetImageFilesAsync(cancellationToken);
             var imageFilesList = imageFiles.ToList();
-            
+
             return new ViewerStatus
             {
                 TotalImages = imageFilesList.Count,
@@ -119,7 +119,7 @@ public class ViewerService : IViewerService
         var fileInfo = new FileInfo(imagePath);
         var relativePath = Path.GetRelativePath(baseDirectory, imagePath);
         var jsonPath = Path.ChangeExtension(imagePath, ".json");
-        
+
         return new ImageFileInfo
         {
             FileName = fileInfo.Name,

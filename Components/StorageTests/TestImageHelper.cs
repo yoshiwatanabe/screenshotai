@@ -10,7 +10,7 @@ public static class TestImageHelper
     public static byte[] CreateTestJpegImage(int width, int height, int quality = 85)
     {
         using var image = new Image<Rgba32>(width, height);
-        
+
         // Create a simple colored image
         image.Mutate(ctx =>
         {
@@ -25,7 +25,7 @@ public static class TestImageHelper
     public static byte[] CreateScreenshotStyleImage(int width = 1920, int height = 1080)
     {
         using var image = new Image<Rgba32>(width, height);
-        
+
         image.Mutate(ctx =>
         {
             ctx.BackgroundColor(Color.White);
@@ -42,12 +42,12 @@ public static class TestImageHelper
         var invalidData = new byte[1000];
         var random = new Random(67890);
         random.NextBytes(invalidData);
-        
+
         // Add some "header-like" bytes to make it more realistic
         invalidData[0] = 0xFF; // JPEG marker start
         invalidData[1] = 0xD8; // JPEG marker
-        // But the rest is garbage
-        
+                               // But the rest is garbage
+
         return invalidData;
     }
 }

@@ -60,7 +60,7 @@ namespace ImageAnalysisService
                         // Save image to output directory using Storage service
                         var fileName = Path.GetFileName(filePath);
                         var uploadResult = await storageService.UploadFromClipboardAsync(imageBytes, fileName, stoppingToken);
-                        
+
                         if (uploadResult != null && uploadResult.Success)
                         {
                             // Save analysis JSON to output directory with matching filename
@@ -68,10 +68,10 @@ namespace ImageAnalysisService
                             var jsonFileName = Path.ChangeExtension(uploadResult.BlobName, ".json");
                             var jsonOutputPath = Path.Combine("/home/ywatanabe/dev/screenshotai/_output", jsonFileName);
                             await File.WriteAllTextAsync(jsonOutputPath, json, stoppingToken);
-                            
+
                             _logger.LogInformation($"Image saved as: {uploadResult.BlobName}");
                             _logger.LogInformation($"Analysis saved to: {jsonOutputPath}");
-                            
+
                             // Clean up the original file from _watch
                             File.Delete(filePath);
                             _logger.LogInformation($"Cleaned up original file: {filePath}");

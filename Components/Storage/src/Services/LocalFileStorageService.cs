@@ -20,7 +20,7 @@ public class LocalFileStorageService : ILocalStorageService, IScreenshotStorageS
     {
         _options = options.Value;
         _logger = logger;
-        
+
         EnsureDirectoriesExist();
     }
 
@@ -30,13 +30,13 @@ public class LocalFileStorageService : ILocalStorageService, IScreenshotStorageS
         CancellationToken cancellationToken = default)
     {
         var stopwatch = Stopwatch.StartNew();
-        
+
         try
         {
             _logger.LogInformation("Starting local upload of clipboard image: {FileName}", fileName);
 
             var optimizedResult = await OptimizeImageAsync(imageData, _options.DefaultOptimization);
-            
+
             var uniqueFileName = GenerateUniqueFileName(fileName);
             var imagePath = Path.Combine(_options.ScreenshotsDirectory, uniqueFileName);
             var thumbnailFileName = GenerateThumbnailFileName(uniqueFileName);
@@ -51,8 +51,8 @@ public class LocalFileStorageService : ILocalStorageService, IScreenshotStorageS
             await Task.WhenAll(uploadTasks);
 
             stopwatch.Stop();
-            
-            _logger.LogInformation("Successfully saved clipboard image locally: {FileName} in {ProcessingTime}ms", 
+
+            _logger.LogInformation("Successfully saved clipboard image locally: {FileName} in {ProcessingTime}ms",
                 fileName, stopwatch.ElapsedMilliseconds);
 
             return new UploadResult
@@ -68,7 +68,7 @@ public class LocalFileStorageService : ILocalStorageService, IScreenshotStorageS
         {
             stopwatch.Stop();
             _logger.LogError(ex, "Failed to save clipboard image locally: {FileName}", fileName);
-            
+
             return new UploadResult
             {
                 Success = false,
@@ -85,9 +85,9 @@ public class LocalFileStorageService : ILocalStorageService, IScreenshotStorageS
         try
         {
             using var image = Image.Load(originalImage);
-            
+
             var originalSize = originalImage.Length;
-            
+
             image.Mutate(x => x.Resize(new ResizeOptions
             {
                 Size = new Size(settings.MaxWidth, settings.MaxHeight),
@@ -124,7 +124,7 @@ public class LocalFileStorageService : ILocalStorageService, IScreenshotStorageS
         try
         {
             var imagePath = Path.Combine(_options.ScreenshotsDirectory, fileName);
-            
+
             if (!File.Exists(imagePath))
             {
                 throw new StorageException(StorageErrorCode.BlobNotFound, fileName, $"Image file not found: {fileName}");
@@ -150,7 +150,7 @@ public class LocalFileStorageService : ILocalStorageService, IScreenshotStorageS
         {
             var thumbnailFileName = GenerateThumbnailFileName(fileName);
             var thumbnailPath = Path.Combine(_options.ThumbnailsDirectory, thumbnailFileName);
-            
+
             if (!File.Exists(thumbnailPath))
             {
                 throw new StorageException(StorageErrorCode.BlobNotFound, fileName, $"Thumbnail file not found: {thumbnailFileName}");
@@ -174,7 +174,7 @@ public class LocalFileStorageService : ILocalStorageService, IScreenshotStorageS
         try
         {
             var imagePath = Path.Combine(_options.ScreenshotsDirectory, fileName);
-            
+
             if (!File.Exists(imagePath))
             {
                 throw new StorageException(StorageErrorCode.BlobNotFound, fileName, $"Image file not found: {fileName}");
@@ -232,12 +232,12 @@ public class LocalFileStorageService : ILocalStorageService, IScreenshotStorageS
         {
             // Check if directories exist and are writable
             EnsureDirectoriesExist();
-            
+
             // Test write access by creating a temporary file
             var testFilePath = Path.Combine(_options.ScreenshotsDirectory, ".healthcheck");
             await File.WriteAllTextAsync(testFilePath, "healthcheck", cancellationToken);
             File.Delete(testFilePath);
-            
+
             return true;
         }
         catch (Exception ex)
@@ -263,7 +263,7 @@ public class LocalFileStorageService : ILocalStorageService, IScreenshotStorageS
 
     private async Task<byte[]> GenerateThumbnailAsync(Image image, System.Drawing.Size thumbnailSize)
     {
-        using var thumbnail = image.Clone(ctx => {});
+        using var thumbnail = image.Clone(ctx => { });
         thumbnail.Mutate(x => x.Resize(new ResizeOptions
         {
             Size = new Size(thumbnailSize.Width, thumbnailSize.Height),
@@ -281,10 +281,10 @@ public class LocalFileStorageService : ILocalStorageService, IScreenshotStorageS
         var guid = Guid.NewGuid().ToString("N")[..8];
         var extension = Path.GetExtension(originalFileName);
         var nameWithoutExtension = Path.GetFileNameWithoutExtension(originalFileName);
-        
+
         // Clean the filename to be filesystem safe
         var cleanName = string.Join("_", nameWithoutExtension.Split(Path.GetInvalidFileNameChars()));
-        
+
         return $"{timestamp}_{guid}_{cleanName}{extension}";
     }
 

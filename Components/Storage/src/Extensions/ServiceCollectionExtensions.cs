@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<LocalFileStorageService>();
         services.AddScoped<ILocalStorageService>(provider => provider.GetRequiredService<LocalFileStorageService>());
         services.AddScoped<IScreenshotStorageService>(provider => provider.GetRequiredService<LocalFileStorageService>());
-        
+
         return services;
     }
 }

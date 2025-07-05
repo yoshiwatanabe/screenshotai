@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
                                    .LogDebug($"HttpClient BaseAddress set to: {httpClient.BaseAddress}");
                 });
         services.AddScoped<AzureVisionHttpService>();
-        
+
         return services;
     }
 }

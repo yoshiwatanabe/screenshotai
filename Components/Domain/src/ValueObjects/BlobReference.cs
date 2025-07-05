@@ -10,10 +10,10 @@ public class BlobReference : IEquatable<BlobReference>
     {
         if (string.IsNullOrWhiteSpace(containerName))
             throw new ArgumentException("Container name cannot be null or empty", nameof(containerName));
-        
+
         if (string.IsNullOrWhiteSpace(blobName))
             throw new ArgumentException("Blob name cannot be null or empty", nameof(blobName));
-        
+
         if (fullUri == null)
             throw new ArgumentNullException(nameof(fullUri));
 
@@ -26,8 +26,8 @@ public class BlobReference : IEquatable<BlobReference>
     {
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
-        return ContainerName == other.ContainerName && 
-               BlobName == other.BlobName && 
+        return ContainerName == other.ContainerName &&
+               BlobName == other.BlobName &&
                FullUri.Equals(other.FullUri);
     }
 

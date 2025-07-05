@@ -49,7 +49,7 @@ public class LocalFileStorageServiceTests : IDisposable
         // Verify files exist
         var imagePath = await _storageService.GetImagePathAsync(result.BlobName);
         var thumbnailPath = await _storageService.GetThumbnailPathAsync(result.BlobName);
-        
+
         Assert.True(File.Exists(imagePath));
         Assert.True(File.Exists(thumbnailPath));
 
@@ -68,7 +68,7 @@ public class LocalFileStorageServiceTests : IDisposable
         var testImageData = TestImageHelper.CreateTestJpegImage(400, 300);
         var fileName = "local_test_retrieve.jpg";
         var uploadResult = await _storageService.UploadFromClipboardAsync(testImageData, fileName);
-        
+
         Assert.True(uploadResult.Success);
         _createdFiles.Add(uploadResult.BlobName);
 
@@ -78,10 +78,10 @@ public class LocalFileStorageServiceTests : IDisposable
         // Assert
         Assert.NotNull(stream);
         Assert.True(stream.CanRead);
-        
+
         var retrievedData = new byte[stream.Length];
         await stream.ReadAsync(retrievedData);
-        
+
         Assert.True(retrievedData.Length > 0);
         _output.WriteLine($"Retrieved image stream: {retrievedData.Length} bytes");
     }
@@ -93,7 +93,7 @@ public class LocalFileStorageServiceTests : IDisposable
         var testImageData = TestImageHelper.CreateTestJpegImage(1200, 800);
         var fileName = "local_test_thumbnail.jpg";
         var uploadResult = await _storageService.UploadFromClipboardAsync(testImageData, fileName);
-        
+
         Assert.True(uploadResult.Success);
         _createdFiles.Add(uploadResult.BlobName);
 
@@ -104,14 +104,14 @@ public class LocalFileStorageServiceTests : IDisposable
         Assert.NotNull(thumbnailPath);
         Assert.True(File.Exists(thumbnailPath));
         Assert.Contains("_thumb.jpg", thumbnailPath);
-        
+
         // Verify thumbnail is smaller than original
         var thumbnailInfo = new FileInfo(thumbnailPath);
         var originalPath = await _storageService.GetImagePathAsync(uploadResult.BlobName);
         var originalInfo = new FileInfo(originalPath);
-        
+
         Assert.True(thumbnailInfo.Length < originalInfo.Length);
-        
+
         _output.WriteLine($"Thumbnail Path: {thumbnailPath}");
         _output.WriteLine($"Original Size: {originalInfo.Length} bytes");
         _output.WriteLine($"Thumbnail Size: {thumbnailInfo.Length} bytes");
@@ -155,7 +155,7 @@ public class LocalFileStorageServiceTests : IDisposable
         var testImageData = TestImageHelper.CreateTestJpegImage(600, 400);
         var fileName = "local_test_delete.jpg";
         var uploadResult = await _storageService.UploadFromClipboardAsync(testImageData, fileName);
-        
+
         Assert.True(uploadResult.Success);
 
         // Verify files exist before deletion
@@ -251,14 +251,14 @@ public class LocalFileStorageServiceTests : IDisposable
 
         // Assert
         Assert.True(result.Success, $"Upload failed for {width}x{height}: {result.ErrorMessage}");
-        
+
         // Track for cleanup
         _createdFiles.Add(result.BlobName);
 
         // Verify file size constraints
         var filePath = await _storageService.GetImagePathAsync(result.BlobName);
         var fileInfo = new FileInfo(filePath);
-        
+
         _output.WriteLine($"Successfully uploaded {width}x{height} image:");
         _output.WriteLine($"  Original Size: {testImageData.Length} bytes");
         _output.WriteLine($"  Stored Size: {fileInfo.Length} bytes");
@@ -271,19 +271,19 @@ public class LocalFileStorageServiceTests : IDisposable
     {
         // This test verifies that directories are created automatically
         // The service should handle this in the constructor/EnsureDirectoriesExist method
-        
+
         // Act
         var isHealthy = await _storageService.IsHealthyAsync();
 
         // Assert
         Assert.True(isHealthy);
-        
+
         var screenshotsDir = _configuration["Storage:ScreenshotsDirectory"];
         var thumbnailsDir = _configuration["Storage:ThumbnailsDirectory"];
-        
+
         Assert.True(Directory.Exists(screenshotsDir));
         Assert.True(Directory.Exists(thumbnailsDir));
-        
+
         _output.WriteLine($"Verified directories exist:");
         _output.WriteLine($"  Screenshots: {screenshotsDir}");
         _output.WriteLine($"  Thumbnails: {thumbnailsDir}");
@@ -313,12 +313,12 @@ public class LocalFileStorageServiceTests : IDisposable
         {
             var screenshotsDir = _configuration["Storage:ScreenshotsDirectory"];
             var thumbnailsDir = _configuration["Storage:ThumbnailsDirectory"];
-            
+
             if (Directory.Exists(screenshotsDir) && !Directory.EnumerateFileSystemEntries(screenshotsDir).Any())
             {
                 Directory.Delete(screenshotsDir);
             }
-            
+
             if (Directory.Exists(thumbnailsDir) && !Directory.EnumerateFileSystemEntries(thumbnailsDir).Any())
             {
                 Directory.Delete(thumbnailsDir);

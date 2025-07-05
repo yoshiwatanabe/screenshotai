@@ -48,7 +48,7 @@ public class ScreenshotTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData(null)]
-    public void CreateFromClipboard_InvalidDisplayName_ThrowsArgumentException(string invalidDisplayName)
+    public void CreateFromClipboard_InvalidDisplayName_ThrowsArgumentException(string? invalidDisplayName)
     {
         // Act & Assert
         Assert.Throws<ArgumentException>(() => Screenshot.CreateFromClipboard(invalidDisplayName, "valid-blob"));
@@ -58,7 +58,7 @@ public class ScreenshotTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData(null)]
-    public void CreateFromClipboard_InvalidBlobName_ThrowsArgumentException(string invalidBlobName)
+    public void CreateFromClipboard_InvalidBlobName_ThrowsArgumentException(string? invalidBlobName)
     {
         // Act & Assert
         Assert.Throws<ArgumentException>(() => Screenshot.CreateFromClipboard("valid-name", invalidBlobName));
