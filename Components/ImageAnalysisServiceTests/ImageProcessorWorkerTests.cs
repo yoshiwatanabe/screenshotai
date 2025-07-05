@@ -1,7 +1,9 @@
 using Xunit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using ImageAnalysisService;
+using Storage.Configuration;
 using System.Threading.Tasks;
 using System.Threading.Channels;
 using System.Threading;
@@ -48,9 +50,10 @@ public class ImageProcessorWorkerTests
         var serviceProvider = services.BuildServiceProvider();
         var logger = serviceProvider.GetService<ILogger<ImageProcessorWorker>>();
         var channel = new ProcessingChannel();
+        var storageOptions = Options.Create(new StorageOptions { ScreenshotsDirectory = "_output" });
 
         // Act & Assert
-        var worker = new ImageProcessorWorker(logger, serviceProvider, channel);
+        var worker = new ImageProcessorWorker(logger, serviceProvider, channel, storageOptions);
         Assert.NotNull(worker);
     }
 }

@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Storage.Configuration;
 using Storage.Services;
 using Vision.Services;
 
@@ -17,12 +19,14 @@ namespace ImageAnalysisService
         private readonly ILogger<ImageProcessorWorker> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly ProcessingChannel _channel;
+        private readonly StorageOptions _storageOptions;
 
-        public ImageProcessorWorker(ILogger<ImageProcessorWorker> logger, IServiceProvider serviceProvider, ProcessingChannel channel)
+        public ImageProcessorWorker(ILogger<ImageProcessorWorker> logger, IServiceProvider serviceProvider, ProcessingChannel channel, IOptions<StorageOptions> storageOptions)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
             _channel = channel;
+            _storageOptions = storageOptions.Value;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -66,7 +70,7 @@ namespace ImageAnalysisService
                             // Save analysis JSON to output directory with matching filename
                             var json = JsonSerializer.Serialize(analysisResult, new JsonSerializerOptions { WriteIndented = true });
                             var jsonFileName = Path.ChangeExtension(uploadResult.BlobName, ".json");
-                            var jsonOutputPath = Path.Combine("/home/ywatanabe/dev/screenshotai/_output", jsonFileName);
+                            var jsonOutputPath = Path.Combine(_storageOptions.ScreenshotsDirectory, jsonFileName);
                             await File.WriteAllTextAsync(jsonOutputPath, json, stoppingToken);
 
                             _logger.LogInformation($"Image saved as: {uploadResult.BlobName}");
