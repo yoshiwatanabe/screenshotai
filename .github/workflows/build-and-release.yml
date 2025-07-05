@@ -43,7 +43,7 @@ jobs:
       run: dotnet test Components/ImageAnalysisServiceTests/ImageAnalysisServiceTests.csproj --no-build --configuration Release --verbosity normal
     
     - name: Run ViewerComponent Tests
-      run: dotnet test Components/ViewerComponentTests/ViewerComponentTests.csproj --no-build --configuration Release --verbosity normal
+      run: dotnet test Components/ViewerComponentTests/ViewerComponentTests.csproj --configuration Release --verbosity normal
 
   build:
     name: Build Cross-Platform
