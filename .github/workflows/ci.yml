@@ -9,6 +9,11 @@ on:
     # Run daily at 2 AM UTC to catch dependency issues
     - cron: '0 2 * * *'
 
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
 env:
   DOTNET_VERSION: '8.0.x'
 
