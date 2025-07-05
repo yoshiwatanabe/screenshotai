@@ -1,0 +1,207 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  PROJECT_PATH: 'Components/ImageAnalysisService/ImageAnalysisService.csproj'
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+    
+    - name: Run Domain Tests
+      run: dotnet test Components/DomainTests/DomainTests.csproj --no-build --configuration Release --verbosity normal
+    
+    - name: Run Storage Tests  
+      run: dotnet test Components/StorageTests/StorageTests.csproj --no-build --configuration Release --verbosity normal
+    
+    - name: Run Vision Tests
+      run: dotnet test Components/VisionTests/VisionTests.csproj --no-build --configuration Release --verbosity normal
+    
+    - name: Run ImageAnalysisService Tests
+      run: dotnet test Components/ImageAnalysisServiceTests/ImageAnalysisServiceTests.csproj --no-build --configuration Release --verbosity normal
+    
+    - name: Run ViewerComponent Tests
+      run: dotnet test Components/ViewerComponentTests/ViewerComponentTests.csproj --no-build --configuration Release --verbosity normal
+
+  build:
+    name: Build Cross-Platform
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - { runtime: 'win-x64', os: 'Windows' }
+          - { runtime: 'linux-x64', os: 'Linux' }
+          - { runtime: 'osx-x64', os: 'macOS-Intel' }
+          - { runtime: 'osx-arm64', os: 'macOS-ARM64' }
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build and Publish
+      run: |
+        dotnet publish ${{ env.PROJECT_PATH }} \
+          --configuration Release \
+          --runtime ${{ matrix.target.runtime }} \
+          --self-contained true \
+          --output ./publish/${{ matrix.target.runtime }} \
+          -p:PublishSingleFile=true \
+          -p:IncludeNativeLibrariesForSelfExtract=true \
+          -p:PublishTrimmed=false
+    
+    - name: Create Archive
+      run: |
+        cd ./publish/${{ matrix.target.runtime }}
+        if [[ "${{ matrix.target.runtime }}" == win-* ]]; then
+          7z a ../../screenshotai-${{ matrix.target.os }}.zip *
+        else
+          tar -czf ../../screenshotai-${{ matrix.target.os }}.tar.gz *
+        fi
+    
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: screenshotai-${{ matrix.target.os }}
+        path: |
+          screenshotai-${{ matrix.target.os }}.*
+        retention-days: 30
+
+  release:
+    name: Create Release
+    needs: [test, build]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download All Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./artifacts
+    
+    - name: Prepare Release Assets
+      run: |
+        mkdir -p ./release-assets
+        find ./artifacts -name "screenshotai-*.*" -exec cp {} ./release-assets/ \;
+        ls -la ./release-assets/
+    
+    - name: Extract Version
+      id: version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+    
+    - name: Generate Release Notes
+      id: release_notes
+      run: |
+        cat > release_notes.md << 'EOF'
+        ## ScreenshotAI v${{ steps.version.outputs.VERSION }}
+        
+        ### 🚀 Features
+        - Automated screenshot analysis using Azure AI Vision
+        - Real-time web interface for viewing results
+        - Cross-platform support (Windows, Linux, macOS)
+        - REST API for programmatic access
+        - Self-contained executables (no .NET runtime required)
+        
+        ### 📦 Downloads
+        Choose the appropriate package for your platform:
+        - **Windows**: screenshotai-Windows.zip
+        - **Linux**: screenshotai-Linux.tar.gz  
+        - **macOS Intel**: screenshotai-macOS-Intel.tar.gz
+        - **macOS ARM64**: screenshotai-macOS-ARM64.tar.gz
+        
+        ### 🛠️ Quick Start
+        1. Download and extract the package for your platform
+        2. Set Azure Vision API environment variables
+        3. Run the executable
+        4. Open http://localhost:8080 in your browser
+        
+        See the README for detailed installation instructions.
+        
+        ### 🧪 Tests Passed
+        All automated tests passing:
+        - Domain Tests: ✅
+        - Storage Tests: ✅  
+        - Vision Tests: ✅
+        - ImageAnalysisService Tests: ✅
+        - ViewerComponent Tests: ✅
+        EOF
+    
+    - name: Create Release
+      uses: actions/create-release@v1
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.VERSION }}
+        release_name: ScreenshotAI ${{ steps.version.outputs.VERSION }}
+        body_path: release_notes.md
+        draft: false
+        prerelease: false
+    
+    - name: Upload Release Assets
+      run: |
+        for file in ./release-assets/*; do
+          filename=$(basename "$file")
+          echo "Uploading $filename..."
+          
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @"$file" \
+            "${{ steps.create_release.outputs.upload_url }}?name=$filename"
+        done
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run CodeQL Analysis
+      uses: github/codeql-action/init@v3
+      with:
+        languages: csharp
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Build for Analysis
+      run: dotnet build --configuration Release
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
