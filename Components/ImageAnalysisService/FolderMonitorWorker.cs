@@ -50,6 +50,10 @@ namespace ImageAnalysisService
         private async void OnFileCreated(object sender, FileSystemEventArgs e)
         {
             _logger.LogInformation($"New file detected: {e.FullPath}");
+            
+            // Add a small delay to ensure the file writing is complete
+            await Task.Delay(100);
+            
             await _channel.Writer.WriteAsync(e.FullPath);
         }
 

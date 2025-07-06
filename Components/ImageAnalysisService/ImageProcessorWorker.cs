@@ -49,11 +49,11 @@ namespace ImageAnalysisService
                         continue;
                     }
 
-                    byte[] imageBytes = await File.ReadAllBytesAsync(filePath, stoppingToken);
+                    byte[] imageBytes = await ReadFileWithRetryAsync(filePath, stoppingToken);
 
                     if (imageBytes.Length == 0)
                     {
-                        _logger.LogWarning($"File is empty: {filePath}. Skipping analysis.");
+                        _logger.LogWarning($"File is empty after retries: {filePath}. Skipping analysis.");
                         continue;
                     }
 
@@ -94,6 +94,74 @@ namespace ImageAnalysisService
                 {
                     _logger.LogError(ex, $"Error processing file: {filePath}");
                 }
+            }
+        }
+
+        private async Task<byte[]> ReadFileWithRetryAsync(string filePath, CancellationToken cancellationToken)
+        {
+            const int maxRetries = 5;
+            const int delayMs = 500;
+
+            for (int attempt = 0; attempt < maxRetries; attempt++)
+            {
+                try
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                        return Array.Empty<byte>();
+
+                    if (!IsFileReady(filePath))
+                    {
+                        _logger.LogDebug($"File not ready, attempt {attempt + 1}/{maxRetries}: {filePath}");
+                        await Task.Delay(delayMs, cancellationToken);
+                        continue;
+                    }
+
+                    byte[] bytes = await File.ReadAllBytesAsync(filePath, cancellationToken);
+                    
+                    if (bytes.Length > 0)
+                    {
+                        _logger.LogDebug($"Successfully read {bytes.Length} bytes from {filePath}");
+                        return bytes;
+                    }
+                    
+                    _logger.LogDebug($"File is empty, attempt {attempt + 1}/{maxRetries}: {filePath}");
+                    await Task.Delay(delayMs, cancellationToken);
+                }
+                catch (IOException ex) when (ex.Message.Contains("being used by another process"))
+                {
+                    _logger.LogDebug($"File locked by another process, attempt {attempt + 1}/{maxRetries}: {filePath}");
+                    await Task.Delay(delayMs, cancellationToken);
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    _logger.LogDebug($"Access denied, attempt {attempt + 1}/{maxRetries}: {filePath}. {ex.Message}");
+                    await Task.Delay(delayMs, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Unexpected error reading file {filePath}, attempt {attempt + 1}/{maxRetries}");
+                    await Task.Delay(delayMs, cancellationToken);
+                }
+            }
+
+            _logger.LogWarning($"Failed to read file after {maxRetries} attempts: {filePath}");
+            return Array.Empty<byte>();
+        }
+
+        private bool IsFileReady(string filePath)
+        {
+            try
+            {
+                using var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                return stream.Length > 0;
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return false;
             }
         }
     }
