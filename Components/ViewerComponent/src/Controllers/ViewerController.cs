@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ViewerComponent.Services;
+using System.Reflection;
 
 namespace ViewerComponent.Controllers;
 
@@ -52,5 +53,21 @@ public class ViewerController : ControllerBase
     {
         var status = await _viewerService.GetStatusAsync(cancellationToken);
         return Ok(status);
+    }
+
+    [HttpGet("version")]
+    public IActionResult GetVersion()
+    {
+        var assembly = Assembly.GetEntryAssembly();
+        var version = assembly?.GetName().Version?.ToString() ?? "Unknown";
+        var fileVersion = assembly?.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version ?? version;
+        
+        return Ok(new 
+        { 
+            version = version,
+            fileVersion = fileVersion,
+            assemblyVersion = assembly?.GetName().Version?.ToString(),
+            buildDate = System.IO.File.GetCreationTime(assembly?.Location ?? "").ToString("yyyy-MM-dd HH:mm:ss")
+        });
     }
 }

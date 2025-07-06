@@ -8,6 +8,12 @@
 
 ScreenshotAI is a powerful .NET application that automatically monitors directories for new images, analyzes them using Azure AI Vision, and provides a beautiful web interface to view the results in real-time.
 
+## 🎬 Demo
+
+![ScreenshotAI Demo](https://github.com/yoshiwatanabe/screenshotai/releases/download/v1.0.9/screenai-demo-small.gif)
+
+*See ScreenshotAI in action: Drop an image, get instant AI analysis with a beautiful interface*
+
 ## ✨ Features
 
 - 🔄 **Automated Processing**: Drop images in a folder and get instant AI analysis

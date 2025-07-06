@@ -8,6 +8,7 @@ class ScreenshotViewer {
         this.attachEventListeners();
         this.loadImages();
         this.updateStatus();
+        this.loadVersion();
         
         // Auto-refresh every 30 seconds
         setInterval(() => this.loadImages(), 30000);
@@ -22,6 +23,7 @@ class ScreenshotViewer {
         this.imageModal = document.getElementById('image-modal');
         this.modalImage = document.getElementById('modal-image');
         this.modalClose = document.getElementById('image-modal-close');
+        this.versionInfo = document.getElementById('version-info');
     }
 
     attachEventListeners() {
@@ -75,6 +77,23 @@ class ScreenshotViewer {
         } catch (error) {
             console.error('Error updating status:', error);
             this.statusInfo.textContent = 'Status unavailable';
+        }
+    }
+
+    async loadVersion() {
+        try {
+            const response = await fetch(`${this.apiBase}/version`);
+            if (!response.ok) return;
+            
+            const versionData = await response.json();
+            // Use the version from the assembly, fallback to hardcoded if API fails
+            const version = versionData.version || versionData.fileVersion || '1.0.9';
+            this.versionInfo.textContent = `v${version}`;
+                
+        } catch (error) {
+            console.error('Error loading version:', error);
+            // Keep the hardcoded fallback
+            this.versionInfo.textContent = 'v1.0.9';
         }
     }
 
