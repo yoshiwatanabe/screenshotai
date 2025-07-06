@@ -19,28 +19,26 @@ class ScreenshotViewer {
         this.loading = document.getElementById('loading');
         this.noImages = document.getElementById('no-images');
         this.imageGrid = document.getElementById('image-grid');
-        this.modal = document.getElementById('detail-modal');
-        this.modalTitle = document.getElementById('modal-title');
+        this.imageModal = document.getElementById('image-modal');
         this.modalImage = document.getElementById('modal-image');
-        this.modalClose = document.getElementById('modal-close');
-        this.analysisContent = document.getElementById('analysis-content');
+        this.modalClose = document.getElementById('image-modal-close');
     }
 
     attachEventListeners() {
         this.refreshBtn.addEventListener('click', () => this.loadImages());
-        this.modalClose.addEventListener('click', () => this.closeModal());
         
-        // Close modal when clicking outside
-        this.modal.addEventListener('click', (e) => {
-            if (e.target === this.modal) {
-                this.closeModal();
+        // Image modal event listeners
+        this.modalClose.addEventListener('click', () => this.closeImageModal());
+        this.imageModal.addEventListener('click', (e) => {
+            if (e.target === this.imageModal) {
+                this.closeImageModal();
             }
         });
-
-        // Keyboard shortcuts
+        
+        // Keyboard shortcut to close modal
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                this.closeModal();
+                this.closeImageModal();
             }
         });
     }
@@ -102,147 +100,236 @@ class ScreenshotViewer {
     createImageCard(image) {
         const card = document.createElement('div');
         card.className = 'image-card';
-        card.addEventListener('click', () => this.openModal(image));
-
+        
         const createdDate = new Date(image.createdAt).toLocaleString();
         const fileSize = this.formatFileSize(image.fileSize);
 
+        const safeId = image.fileName.replace(/[^a-zA-Z0-9]/g, '_');
+        
         card.innerHTML = `
             <img src="${this.apiBase}/image/${image.fileName}" 
                  alt="${image.fileName}" 
                  class="image-preview"
-                 loading="lazy">
+                 loading="lazy"
+                 style="cursor: pointer;"
+                 onclick="window.screenshotViewer.openImageModal('${image.fileName}')">
             <div class="image-info">
                 <div class="image-title">${image.fileName}</div>
                 <div class="image-meta">
-                    Created: ${createdDate}<br>
-                    Size: ${fileSize}
+                    <span>Created: ${createdDate}</span>
+                    <span>Size: ${fileSize}</span>
+                    <span class="analysis-status ${image.hasAnalysis ? 'analysis-available' : 'analysis-unavailable'}">
+                        ${image.hasAnalysis ? 'Analyzed' : 'No Analysis'}
+                    </span>
                 </div>
-                <span class="analysis-status ${image.hasAnalysis ? 'analysis-available' : 'analysis-unavailable'}">
-                    ${image.hasAnalysis ? 'Analyzed' : 'No Analysis'}
-                </span>
+                <div id="parsed-${safeId}">
+                    ${image.hasAnalysis ? '<div>Loading parsed analysis...</div>' : ''}
+                </div>
+            </div>
+            <div class="json-section">
+                <button class="json-toggle-btn" onclick="toggleJsonForImage('${safeId}')" title="Show/Hide Raw JSON">
+                    📄 JSON
+                </button>
+                <div class="analysis-display" id="json-${safeId}" style="display: none;">
+                    ${image.hasAnalysis ? 'Loading JSON...' : 'No analysis data'}
+                </div>
             </div>
         `;
+
+        // Load both parsed and JSON analysis if available
+        if (image.hasAnalysis) {
+            this.loadCompleteAnalysis(image);
+        }
 
         return card;
     }
 
-    async openModal(image) {
-        this.currentImage = image;
-        this.modalTitle.textContent = image.fileName;
-        this.modalImage.src = `${this.apiBase}/image/${image.fileName}`;
-        
-        // Load analysis data if available
-        if (image.hasAnalysis) {
-            try {
-                const response = await fetch(`${this.apiBase}/analysis/${image.fileName}`);
-                if (response.ok) {
-                    const analysisData = await response.json();
-                    this.renderAnalysis(analysisData);
+    async loadCompleteAnalysis(image) {
+        try {
+            const response = await fetch(`${this.apiBase}/analysis/${image.fileName}`);
+            if (response.ok) {
+                const analysisData = await response.json();
+                console.log('Raw API response for', image.fileName, ':', analysisData);
+                
+                // Check if we got a pre-parsed string or raw JSON
+                if (typeof analysisData === 'string') {
+                    // It's already a parsed string - show it directly
+                    this.renderPreParsedAnalysis(image, analysisData);
+                    this.renderJsonAnalysis(image, { 
+                        dataType: "Pre-parsed analysis string",
+                        originalString: analysisData,
+                        note: "This data was already processed by the backend"
+                    });
                 } else {
-                    this.analysisContent.innerHTML = '<p>Failed to load analysis data</p>';
+                    // It's raw JSON - parse it ourselves
+                    this.renderParsedAnalysis(image, analysisData);
+                    this.renderJsonAnalysis(image, analysisData);
                 }
-            } catch (error) {
-                console.error('Error loading analysis:', error);
-                this.analysisContent.innerHTML = '<p>Error loading analysis data</p>';
             }
-        } else {
-            this.analysisContent.innerHTML = '<p>No analysis available for this image</p>';
+        } catch (error) {
+            console.error('Error loading analysis:', error);
         }
-
-        this.modal.style.display = 'block';
-        document.body.style.overflow = 'hidden';
     }
 
-    closeModal() {
-        this.modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-        this.currentImage = null;
-    }
-
-    renderAnalysis(data) {
-        if (!data) {
-            this.analysisContent.innerHTML = '<p>No analysis data available</p>';
+    renderParsedAnalysis(image, data) {
+        const parsedId = `parsed-${image.fileName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        const parsedElement = document.getElementById(parsedId);
+        if (!parsedElement) {
+            console.error(`Element not found: ${parsedId}`);
             return;
         }
 
-        let html = '';
+        console.log('Analysis data for parsing:', data);
 
-        // Handle different types of Azure Vision responses
-        if (data.categories && data.categories.length > 0) {
-            html += this.renderSection('Categories', data.categories.map(cat => 
-                `<div class="analysis-item">
-                    <h4>${cat.name}</h4>
-                    <span class="confidence">Confidence: ${(cat.score * 100).toFixed(1)}%</span>
-                </div>`
-            ).join(''));
+        // Create parsed analysis string in your requested format
+        let parsedParts = [];
+
+        // Tags with confidence
+        if (data.tags && Array.isArray(data.tags) && data.tags.length > 0) {
+            const tagStr = data.tags
+                .slice(0, 5)  // Top 5 tags
+                .map(tag => `${tag.name}(${(tag.confidence || tag.score || 0).toFixed(1)})`)
+                .join(', ');
+            parsedParts.push(`Tags: ${tagStr}`);
         }
 
-        if (data.tags && data.tags.length > 0) {
-            html += this.renderSection('Tags', data.tags.map(tag => 
-                `<div class="analysis-item">
-                    <h4>${tag.name}</h4>
-                    <span class="confidence">Confidence: ${(tag.confidence * 100).toFixed(1)}%</span>
-                </div>`
-            ).join(''));
-        }
-
+        // Text/Description
         if (data.description && data.description.captions && data.description.captions.length > 0) {
-            html += this.renderSection('Description', data.description.captions.map(caption => 
-                `<div class="analysis-item">
-                    <h4>${caption.text}</h4>
-                    <span class="confidence">Confidence: ${(caption.confidence * 100).toFixed(1)}%</span>
-                </div>`
-            ).join(''));
+            const text = data.description.captions[0].text;
+            parsedParts.push(`Text: ${text}`);
         }
 
-        if (data.objects && data.objects.length > 0) {
-            html += this.renderSection('Objects', data.objects.map(obj => 
-                `<div class="analysis-item">
-                    <h4>${obj.object}</h4>
-                    <span class="confidence">Confidence: ${(obj.confidence * 100).toFixed(1)}%</span>
-                    <div>Rectangle: ${JSON.stringify(obj.rectangle)}</div>
-                </div>`
-            ).join(''));
+        // Alternative text fields
+        if (data.text && typeof data.text === 'string') {
+            parsedParts.push(`Text: ${data.text}`);
         }
 
-        if (data.faces && data.faces.length > 0) {
-            html += this.renderSection('Faces', data.faces.map((face, index) => 
-                `<div class="analysis-item">
-                    <h4>Face ${index + 1}</h4>
-                    <div>Age: ${face.age || 'Unknown'}</div>
-                    <div>Gender: ${face.gender || 'Unknown'}</div>
-                    <div>Rectangle: ${JSON.stringify(face.faceRectangle)}</div>
-                </div>`
-            ).join(''));
+        // People count
+        if (data.faces && Array.isArray(data.faces) && data.faces.length > 0) {
+            parsedParts.push(`People: ${data.faces.length} person${data.faces.length > 1 ? 's' : ''} detected`);
         }
 
-        if (data.color) {
-            html += this.renderSection('Color Analysis', 
-                `<div class="analysis-item">
-                    <h4>Dominant Colors</h4>
-                    <div>Background: ${data.color.dominantColorBackground}</div>
-                    <div>Foreground: ${data.color.dominantColorForeground}</div>
-                    <div>Accent: ${data.color.accentColor}</div>
-                </div>`
-            );
+        // Objects
+        if (data.objects && Array.isArray(data.objects) && data.objects.length > 0) {
+            const objectStr = data.objects
+                .slice(0, 3)  // Top 3 objects
+                .map(obj => `${obj.object}(${(obj.confidence || obj.score || 0).toFixed(1)})`)
+                .join(', ');
+            parsedParts.push(`Objects: ${objectStr}`);
         }
 
-        // Always show raw JSON for debugging
-        html += `
-            <h3 style="margin-top: 20px;">Raw JSON Data</h3>
-            <div class="json-view">${JSON.stringify(data, null, 2)}</div>
-        `;
+        // Categories (fallback)
+        if (parsedParts.length === 0 && data.categories && Array.isArray(data.categories) && data.categories.length > 0) {
+            const catStr = data.categories
+                .slice(0, 3)
+                .map(cat => `${cat.name}(${(cat.score || cat.confidence || 0).toFixed(1)})`)
+                .join(', ');
+            parsedParts.push(`Categories: ${catStr}`);
+        }
 
-        this.analysisContent.innerHTML = html;
+        console.log('Parsed parts:', parsedParts);
+
+        if (parsedParts.length > 0) {
+            const fullString = parsedParts.join('<br/>');
+            parsedElement.innerHTML = `
+                <div class="parsed-analysis" onclick="copyToClipboard(this)" title="Click to copy">
+                    ${fullString}
+                </div>
+            `;
+        } else {
+            parsedElement.innerHTML = '<div>No analysis data could be parsed</div>';
+            console.warn('No parseable data found in:', data);
+        }
     }
 
-    renderSection(title, content) {
-        return `
-            <h3 style="margin-top: 20px; margin-bottom: 10px;">${title}</h3>
-            ${content}
+    renderPreParsedAnalysis(image, parsedString) {
+        const parsedId = `parsed-${image.fileName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        const parsedElement = document.getElementById(parsedId);
+        if (!parsedElement) {
+            console.error(`Element not found: ${parsedId}`);
+            return;
+        }
+
+        console.log('Got pre-parsed string:', parsedString);
+
+        // Split by pipe and create separate divs for each line
+        const lines = parsedString.split(' | ');
+        const divElements = lines.map(line => `<div class="analysis-line">${line}</div>`).join('');
+        
+        parsedElement.innerHTML = `
+            <div class="parsed-analysis">
+                ${divElements}
+            </div>
         `;
     }
+
+    renderJsonAnalysis(image, data) {
+        const jsonId = `json-${image.fileName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        const jsonElement = document.getElementById(jsonId);
+        if (!jsonElement) return;
+
+        // Simple JSON display for now
+        jsonElement.innerHTML = JSON.stringify(data, null, 2);
+    }
+
+    formatDataAsKeyValue(data, prefix = '') {
+        // Safety check - make sure this is actually an object
+        if (typeof data !== 'object' || data === null || Array.isArray(data) || typeof data === 'string') {
+            console.error('formatDataAsKeyValue called with invalid data type:', typeof data, data);
+            return JSON.stringify(data, null, 2);
+        }
+
+        let result = [];
+        
+        for (const [key, value] of Object.entries(data)) {
+            const fullKey = prefix ? `${prefix}.${key}` : key;
+            
+            if (value === null || value === undefined) {
+                result.push(`${fullKey}: null`);
+            } else if (typeof value === 'object' && !Array.isArray(value)) {
+                // Nested object - recurse but limit depth
+                if (prefix.split('.').length < 2) {
+                    result.push(`<span style="color: #2c3e50; font-weight: bold;">${fullKey}:</span>`);
+                    result.push(this.formatDataAsKeyValue(value, fullKey));
+                } else {
+                    result.push(`${fullKey}: ${JSON.stringify(value)}`);
+                }
+            } else if (Array.isArray(value)) {
+                if (value.length === 0) {
+                    result.push(`${fullKey}: []`);
+                } else if (typeof value[0] === 'object') {
+                    // Array of objects
+                    result.push(`<span style="color: #2c3e50; font-weight: bold;">${fullKey} (${value.length} items):</span>`);
+                    value.forEach((item, index) => {
+                        result.push(`  [${index}] ${this.formatObjectInline(item)}`);
+                    });
+                } else {
+                    // Array of primitives
+                    result.push(`${fullKey}: [${value.join(', ')}]`);
+                }
+            } else {
+                // Primitive value
+                const formattedValue = typeof value === 'string' ? `"${value}"` : value;
+                result.push(`${fullKey}: ${formattedValue}`);
+            }
+        }
+        
+        return result.join('<br/>');
+    }
+
+    formatObjectInline(obj) {
+        const pairs = [];
+        for (const [key, value] of Object.entries(obj)) {
+            if (typeof value === 'object' && value !== null) {
+                pairs.push(`${key}: ${JSON.stringify(value)}`);
+            } else {
+                const formattedValue = typeof value === 'string' ? `"${value}"` : value;
+                pairs.push(`${key}: ${formattedValue}`);
+            }
+        }
+        return pairs.join(' | ');
+    }
+
 
     showLoading(show) {
         this.loading.style.display = show ? 'block' : 'none';
@@ -257,6 +344,18 @@ class ScreenshotViewer {
         }, 5000);
     }
 
+    openImageModal(fileName) {
+        this.modalImage.src = `${this.apiBase}/image/${fileName}`;
+        this.imageModal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeImageModal() {
+        this.imageModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        this.modalImage.src = '';
+    }
+
     formatFileSize(bytes) {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -266,7 +365,19 @@ class ScreenshotViewer {
     }
 }
 
+// Global functions for UI interactions
+function toggleJsonForImage(imageId) {
+    const jsonElement = document.getElementById(`json-${imageId}`);
+    const button = event.target;
+    
+    if (jsonElement) {
+        const isHidden = jsonElement.style.display === 'none';
+        jsonElement.style.display = isHidden ? 'block' : 'none';
+        button.textContent = isHidden ? '📄 Hide JSON' : '📄 JSON';
+    }
+}
+
 // Initialize the application when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new ScreenshotViewer();
+    window.screenshotViewer = new ScreenshotViewer();
 });

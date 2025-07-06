@@ -9,7 +9,9 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>Screenshot AI Viewer</h1>
+            <div class="header-left">
+                <h1 class="app-title">Screenshot AI <span class="version" id="version-info">v1.0.8</span></h1>
+            </div>
             <div class="status-bar">
                 <span id="status-info">Loading...</span>
                 <button id="refresh-btn" class="btn btn-primary">Refresh</button>
@@ -29,26 +31,14 @@
             <div class="image-grid" id="image-grid"></div>
         </main>
 
-        <!-- Modal for detailed view -->
-        <div class="modal" id="detail-modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 id="modal-title">Image Details</h2>
-                    <button class="modal-close" id="modal-close">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="image-section">
-                        <img id="modal-image" alt="Full size image">
-                    </div>
-                    <div class="analysis-section">
-                        <h3>AI Analysis Results</h3>
-                        <div id="analysis-content">
-                            <p>No analysis available</p>
-                        </div>
-                    </div>
-                </div>
+        <!-- Image Modal for full-size viewing -->
+        <div class="image-modal" id="image-modal">
+            <div class="image-modal-content">
+                <button class="image-modal-close" id="image-modal-close">&times;</button>
+                <img id="modal-image" alt="Full size image">
             </div>
         </div>
+
     </div>
 
     <script src="js/app.js"></script>
